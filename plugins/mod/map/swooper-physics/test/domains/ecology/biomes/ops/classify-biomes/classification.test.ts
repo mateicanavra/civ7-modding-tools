@@ -104,7 +104,7 @@ describe("classifyBiomes operation", () => {
     const overShifted = runWithFirstShift(0.2);
     const supported = runWithFirstShift(authored.config.aridity.moistureShiftThresholds[0]);
 
-    expect(biomeSymbolFromIndex(overShifted.biomeIndex[0]!)).toBe("desert");
+    expect(biomeSymbolFromIndex(overShifted.biomeIndex[0]!)).toBe("tropicalSeasonal");
     expect(biomeSymbolFromIndex(supported.biomeIndex[0]!)).toBe("tropicalSeasonal");
     expect(supported.surfaceTemperature).toEqual(input.surfaceTemperatureC);
     expect(supported.aridityIndex).toEqual(input.aridityIndex);
@@ -181,9 +181,43 @@ describe("classifyBiomes operation", () => {
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[0]!]!)).toBe("tropicalRainforest");
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[1]!]!)).toBe("temperateHumid");
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[2]!]!)).toBe("temperateDry");
-    expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[3]!]!)).toBe("desert");
+    expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[3]!]!)).toBe("tropicalSeasonal");
     expect(biomeSymbolFromIndex(result.biomeIndex[sampleTiles[4]!]!)).toBe("snow");
     expect(result.biomeIndex[waterTile]).toBe(255);
+  });
+
+  it("retains authored stress-shift discrimination between non-desert temperate classes", () => {
+    const authored = admitStandardMapConfig(swooperEarthlikeRaw)
+      .config["ecology-biomes"].biomes.classify;
+    const input = {
+      width: 1, height: 1,
+      landMask: Uint8Array.of(1),
+      effectiveMoisture: Float32Array.of(200), plantEffectiveMoisture: Float32Array.of(200),
+      surfaceTemperatureC: Float32Array.of(15), coldestMonthMeanSurfaceTemperatureC: Float32Array.of(10),
+      aridityIndex: Float32Array.of(0.35), plantWaterStress: Float32Array.of(0.35),
+      freezeIndex: new Float32Array(1), permafrost01: new Float32Array(1),
+      soilType: new Uint8Array(1), fertility: Float32Array.of(0.5),
+    };
+    const run = (firstShift: number) => ecology.biomes.ops.classifyBiomes.run(
+      input,
+      normalizeOperationSelectionForTest(ecology.biomes.ops.classifyBiomes, {
+        ...authored,
+        config: {
+          ...authored.config,
+          aridity: {
+            ...authored.config.aridity,
+            moistureShiftThresholds: [firstShift, authored.config.aridity.moistureShiftThresholds[1]],
+          },
+        },
+      })
+    );
+    const shifted = run(0.2);
+    const unshifted = run(authored.config.aridity.moistureShiftThresholds[0]);
+    expect(biomeSymbolFromIndex(shifted.biomeIndex[0]!)).toBe("temperateDry");
+    expect(biomeSymbolFromIndex(unshifted.biomeIndex[0]!)).toBe("temperateHumid");
+    expect(shifted.vegetationDensity).toEqual(unshifted.vegetationDensity);
+    expect(shifted.surfaceTemperature).toEqual(unshifted.surfaceTemperature);
+    expect(shifted.aridityIndex).toEqual(unshifted.aridityIndex);
   });
 
   it.each([
@@ -330,7 +364,7 @@ describe("classifyBiomes operation", () => {
       { annual: 24, coldMonth: 17, moisture: 230, biome: "temperateHumid" },
       { annual: 22, coldMonth: 18, moisture: 230, biome: "tropicalRainforest" },
       { annual: 22, coldMonth: 17.999, moisture: 230, biome: "temperateHumid" },
-      { annual: 28, coldMonth: 22, moisture: 30, biome: "desert" },
+      { annual: 28, coldMonth: 22, moisture: 30, biome: "tropicalSeasonal" },
       { annual: -10, coldMonth: -20, moisture: 230, biome: "snow" },
       { annual: 0, coldMonth: -8, moisture: 230, biome: "boreal" },
     ] as const;

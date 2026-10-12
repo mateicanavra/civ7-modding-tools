@@ -31,6 +31,22 @@ const width = 5, height = 3, size = width * height, donor = 7, receiver = 8;
 const receiverIntent = { x: 3, y: 1 };
 type Source = "ordinary" | "finite-body";
 
+function producerCoupledMoistureForcing() {
+  const parameters = baselineConfig.computeMoistureForcing.config;
+  const k = parameters.backgroundExtractionRate;
+  // Calm marine deposition P=E*(1+expm1(-k)/k); this is a separate publication
+  // fixture composed with a land consumer, not same-world rainfall reachability.
+  return hydrology.climate.ops.computeMoistureForcing.run({
+    width, height, landMask: new Uint8Array(size), externalWaterMask: new Uint8Array(size).fill(1),
+    elevation: new Int16Array(size), seaLevel: 0,
+    windU: new Int8Array(size), windV: new Int8Array(size),
+    sstC: new Float32Array(size).fill(32), seaIceMask: new Uint8Array(size),
+  }, {
+    ...baselineConfig.computeMoistureForcing,
+    config: { ...parameters, marineSourceRate: 5 / (parameters.wetnessScale * 0.65 * (1 + Math.expm1(-k) / k)) },
+  });
+}
+
 // Defaults retain independent precipitation/wetness owner-boundary controls,
 // not quantities reachable through the current atmospheric forcing producer.
 function fixture(source: Source = "ordinary", supply = 420, options: {
@@ -153,36 +169,26 @@ function receiverPlacements(result: ReturnType<typeof runFlow>) {
 }
 
 describe("Earthlike source-led dryland point-water consumer flow", () => {
-  it("joins current moisture publication to a lawful oasis with insufficient and absent-source contrasts", () => {
-    const parameters = baselineConfig.computeMoistureForcing.config;
-    const k = parameters.backgroundExtractionRate;
-    // Calm marine deposition P=E*(1+expm1(-k)/k); this is a separate publication
-    // fixture composed with a land consumer, not same-world rainfall reachability.
-    const moistureForcing = hydrology.climate.ops.computeMoistureForcing.run({
-      width, height, landMask: new Uint8Array(size), externalWaterMask: new Uint8Array(size).fill(1),
-      elevation: new Int16Array(size), seaLevel: 0,
-      windU: new Int8Array(size), windV: new Int8Array(size),
-      sstC: new Float32Array(size).fill(32), seaIceMask: new Uint8Array(size),
-    }, {
-      ...baselineConfig.computeMoistureForcing,
-      config: { ...parameters, marineSourceRate: 5 / (parameters.wetnessScale * 0.65 * (1 + Math.expm1(-k) / k)) },
-    });
+  it.each(["ordinary", "finite-body"] as const)("joins current moisture publication to a lawful %s oasis with insufficient and absent-source contrasts", (source) => {
+    const moistureForcing = producerCoupledMoistureForcing();
     expect(moistureForcing.precipitation).toEqual(new Float32Array(size).fill(5));
     expect(moistureForcing.surfaceWetness).toEqual(new Float32Array(size).fill(5 / 200));
-    const fields = fixture("ordinary", 420, { moistureForcing });
+    const fields = fixture(source, 420, { moistureForcing });
     expect(fields.surfaceTemperatureC[receiver]).toBe(22);
     expect(fields.input.pet[receiver]).toBe((19 + 82 * (22 / 36)) * (1 - 0.5 * Math.fround(5 / 200)));
     const result = runFlow(fields);
     expect(plannerConfig.config.minConfidence01).toBe(0.42);
     expect(result.indices.localSurfaceWaterOpportunity[receiver]).toBe(60);
     expect(result.indices.pet[receiver]).toBe(Math.fround(fields.input.pet[receiver]!));
+    expect(result.indices.plantWaterStress[receiver]).toBeGreaterThan(0.5);
+    expect(fields.input.pet[receiver]).toBeGreaterThan(5 + 60 + 1);
     expect(biomeSymbolFromIndex(result.biomes.biomeIndex[receiver]!)).toBe("desert");
     expect(result.oasis[receiver]).toBeCloseTo(0.4266611, 6);
     expect(result.oasis[receiver]).toBeGreaterThan(plannerConfig.config.minConfidence01);
     expect(result.plannerInput.terrainBiomeCompatibilityMasks.oasis[receiver]).toBe(1);
     expect(receiverPlacements(result)).toEqual([{ ...receiverIntent, feature: "oasis" }]);
     for (const supply of [350, 0]) {
-      const contrast = runFlow(fixture("ordinary", supply, { moistureForcing }));
+      const contrast = runFlow(fixture(source, supply, { moistureForcing }));
       expect(contrast.indices.pet).toEqual(result.indices.pet);
       expect(contrast.indices.effectiveMoisture).toEqual(result.indices.effectiveMoisture);
       expect(contrast.indices.aridityIndex).toEqual(result.indices.aridityIndex);
@@ -195,27 +201,28 @@ describe("Earthlike source-led dryland point-water consumer flow", () => {
   });
 
   for (const source of ["ordinary", "finite-body"] as const) {
-    for (const family of ["oasis", "watering-hole"] as const) {
-      it(`admits lawful ${family} from ${source} opportunity with independent P/W owner controls, not a hand-set biome`, () => {
-        const oasis = family === "oasis";
-        const fields = fixture(source, oasis ? 420 : 630, { sedimentSignal: oasis ? 1 : 0 });
+    for (const opportunity of [60, 90] as const) {
+      it(`admits watering-hole rather than oasis from ${source} opportunity ${opportunity} with independent P/W owner controls`, () => {
+        const lowerSource = opportunity === 60;
+        const fields = fixture(source, lowerSource ? 420 : 630, { sedimentSignal: lowerSource ? 1 : 0 });
         const result = runFlow(fields);
-        const contrast = runFlow(fixture(source, oasis ? 420 : 630, { sedimentSignal: oasis ? 0 : 1 }));
+        const contrast = runFlow(fixture(source, lowerSource ? 420 : 630, { sedimentSignal: lowerSource ? 0 : 1 }));
         expect(plannerConfig.config.minConfidence01).toBe(0.42);
         expect(fields.input.pet[receiver]).toBe((19 + 82 * (22 / 36)) * (1 - 0.5 * Math.fround(80 / 255)));
         expect(result.indices.pet[receiver]).toBe(Math.fround(fields.input.pet[receiver]!));
-        expect(result.indices.localSurfaceWaterOpportunity[receiver]).toBe(oasis ? 60 : 90);
+        expect(result.indices.localSurfaceWaterOpportunity[receiver]).toBe(opportunity);
         expect(result.indices.effectiveMoisture[receiver]).toBe(33);
-        expect(result.indices.plantEffectiveMoisture[receiver]).toBe(oasis ? 93 : 123);
-        expect(biomeSymbolFromIndex(result.biomes.biomeIndex[receiver]!)).toBe(oasis ? "desert" : "temperateDry");
-        expect(result.pedology.fertility[receiver]).toBeCloseTo(oasis ? 0.7794 : 0.39397, 5);
+        expect(result.indices.plantEffectiveMoisture[receiver]).toBe(lowerSource ? 93 : 123);
+        expect(result.indices.plantWaterStress[receiver]).toBeLessThan(0.5);
+        expect(biomeSymbolFromIndex(result.biomes.biomeIndex[receiver]!)).toBe("temperateDry");
+        expect(result.pedology.fertility[receiver]).toBeCloseTo(lowerSource ? 0.7794 : 0.39397, 5);
         expect(result.biomes.freezeIndex[receiver]).toBe(0);
         expect(fields.permafrost01[receiver]).toBe(0);
         if (source === "finite-body") {
           const body = fields.input.bodies[0]!;
           expect(body.flux.wetPrecipitation).toBe(5);
           expect(body.flux.wetDemand).toBe(fields.input.pet[donor]!);
-          expect(body.flux.incomingOverflow).toBe((oasis ? 420 : 630) - 5);
+          expect(body.flux.incomingOverflow).toBe((lowerSource ? 420 : 630) - 5);
           expect(body.outflow).toBe(body.flux.balance);
         }
         expect(result.pedology.fertility[receiver]).not.toBe(contrast.pedology.fertility[receiver]);
@@ -223,11 +230,14 @@ describe("Earthlike source-led dryland point-water consumer flow", () => {
         expect(result.oasis).toEqual(contrast.oasis);
         expect(result.wateringHole).toEqual(contrast.wateringHole);
         expect(contrast.placements).toEqual(result.placements);
-        expect((oasis ? result.oasis : result.wateringHole)[receiver]).toBeCloseTo(oasis ? 0.4444701 : 0.6070001, 6);
-        expect(receiverPlacements(result)).toEqual([{ ...receiverIntent, feature: family }]);
+        expect(result.oasis[receiver]).toBeCloseTo(lowerSource ? 0.4444701 : 0.5318085, 6);
+        expect(result.wateringHole[receiver]).toBeCloseTo(lowerSource ? 0.5073131 : 0.6070001, 6);
+        expect(result.plannerInput.terrainBiomeCompatibilityMasks.oasis[receiver]).toBe(0);
+        expect(result.plannerInput.terrainBiomeCompatibilityMasks["watering-hole"][receiver]).toBe(1);
+        expect(receiverPlacements(result)).toEqual([{ ...receiverIntent, feature: "watering-hole" }]);
         const contactCells = source === "ordinary" ? [2, 3, 6, 7, 8, 12, 13] : [2, 3, 6, 8, 12, 13];
         expect(result.placements).toEqual(contactCells.map((cell) => ({
-          x: cell % width, y: Math.floor(cell / width), feature: family,
+          x: cell % width, y: Math.floor(cell / width), feature: "watering-hole",
         })));
       });
     }
@@ -274,18 +284,20 @@ describe("Earthlike source-led dryland point-water consumer flow", () => {
   it("keeps admitted source scores while rejecting nonflat terrain and actual prior floodplain intent", () => {
     const fields = fixture();
     const supported = runFlow(fields);
-    const scoreDesertMinor01 = new Float32Array(size);
-    scoreDesertMinor01[receiver] = 1;
+    expect(receiverPlacements(supported)).toEqual([{ ...receiverIntent, feature: "watering-hole" }]);
+    const scorePlainsMinor01 = new Float32Array(size);
+    scorePlainsMinor01[receiver] = 1;
     const prior = features.planFloodplains.run({
-      width, height, seed: 1, scoreDesertMinor01,
+      width, height, seed: 1, scorePlainsMinor01,
+      scoreDesertMinor01: new Float32Array(size),
       scoreDesertNavigable01: new Float32Array(size),
       scoreGrasslandMinor01: new Float32Array(size), scoreGrasslandNavigable01: new Float32Array(size),
-      scorePlainsMinor01: new Float32Array(size), scorePlainsNavigable01: new Float32Array(size),
+      scorePlainsNavigable01: new Float32Array(size),
       scoreTropicalMinor01: new Float32Array(size), scoreTropicalNavigable01: new Float32Array(size),
       scoreTundraMinor01: new Float32Array(size), scoreTundraNavigable01: new Float32Array(size),
       featureOccupancyMask: new Uint8Array(size),
     }, compiled["ecology-features"]["plan-floodplains"].planFloodplains).placements;
-    expect(prior).toEqual([{ ...receiverIntent, feature: "desert-floodplain-minor" }]);
+    expect(prior).toEqual([{ ...receiverIntent, feature: "plains-floodplain-minor" }]);
     const flatLandMask = fields.input.landMask.slice();
     flatLandMask[receiver] = 0;
     const nonflat = runFlow(fields, flatLandMask);
@@ -297,18 +309,24 @@ describe("Earthlike source-led dryland point-water consumer flow", () => {
     }
   });
 
-  it("allows source growth to cross the unchanged floor inside DESERT and strengthen PLAINS without demanding either class", () => {
+  it("allows source growth to relieve DESERT into PLAINS without changing either source scorer or placement floor", () => {
     const weakOasis = runFlow(fixture("ordinary", 350));
     const oasis = runFlow(fixture("ordinary", 420));
     const weakHole = runFlow(fixture("ordinary", 490));
     const hole = runFlow(fixture("ordinary", 630));
-    for (const result of [weakOasis, oasis]) expect(biomeSymbolFromIndex(result.biomes.biomeIndex[receiver]!)).toBe("desert");
-    for (const result of [weakHole, hole]) expect(biomeSymbolFromIndex(result.biomes.biomeIndex[receiver]!)).toBe("temperateDry");
+    expect(biomeSymbolFromIndex(weakOasis.biomes.biomeIndex[receiver]!)).toBe("desert");
+    expect(weakOasis.indices.plantWaterStress[receiver]).toBeGreaterThan(0.5);
+    for (const result of [oasis, weakHole, hole]) {
+      expect(biomeSymbolFromIndex(result.biomes.biomeIndex[receiver]!)).toBe("temperateDry");
+      expect(result.indices.plantWaterStress[receiver]).toBeLessThan(0.5);
+    }
     expect(weakOasis.indices.localSurfaceWaterOpportunity[receiver]).toBe(50);
     expect(weakOasis.oasis[receiver]).toBeLessThan(0.42);
     expect(receiverPlacements(weakOasis)).toEqual([]);
     expect(oasis.oasis[receiver]).toBeGreaterThan(0.42);
-    expect(receiverPlacements(oasis)).toEqual([{ ...receiverIntent, feature: "oasis" }]);
+    expect(oasis.plannerInput.terrainBiomeCompatibilityMasks.oasis[receiver]).toBe(0);
+    expect(oasis.wateringHole[receiver]).toBeGreaterThan(0.42);
+    expect(receiverPlacements(oasis)).toEqual([{ ...receiverIntent, feature: "watering-hole" }]);
     expect(hole.wateringHole[receiver]).toBeGreaterThan(weakHole.wateringHole[receiver]!);
     for (const result of [weakHole, hole]) expect(receiverPlacements(result)).toEqual([{ ...receiverIntent, feature: "watering-hole" }]);
     for (const result of [oasis, weakHole, hole]) {
@@ -333,14 +351,16 @@ describe("Earthlike source-led dryland point-water consumer flow", () => {
     expect(concentrated.indices.localSurfaceWaterOpportunity[receiver]).toBe(Math.fround(350 / 6));
     expect(concentrated.oasis[receiver]).toBeGreaterThan(broad.oasis[receiver]!);
     expect(receiverPlacements(broad)).toEqual([]);
-    expect(biomeSymbolFromIndex(concentrated.biomes.biomeIndex[receiver]!)).toBe("desert");
-    expect(receiverPlacements(concentrated)).toEqual([{ ...receiverIntent, feature: "oasis" }]);
+    expect(biomeSymbolFromIndex(concentrated.biomes.biomeIndex[receiver]!)).toBe("temperateDry");
+    expect(concentrated.indices.plantWaterStress[receiver]).toBeLessThan(0.5);
+    expect(concentrated.plannerInput.terrainBiomeCompatibilityMasks.oasis[receiver]).toBe(0);
+    expect(receiverPlacements(concentrated)).toEqual([{ ...receiverIntent, feature: "watering-hole" }]);
     const finite = fixture("finite-body");
     const original = runFlow(finite);
     finite.input.bodies[0]!.wetCells.push(donor, donor);
     finite.input.bodies.push(structuredClone(finite.input.bodies[0]!));
     expect(runFlow(finite)).toEqual(original);
-    expect(receiverPlacements(original)).toEqual([{ ...receiverIntent, feature: "oasis" }]);
+    expect(receiverPlacements(original)).toEqual([{ ...receiverIntent, feature: "watering-hole" }]);
     const ordinary = fixture();
     const originalOrdinary = runFlow(ordinary);
     for (const label of [0, 1, 2]) {
@@ -351,13 +371,16 @@ describe("Earthlike source-led dryland point-water consumer flow", () => {
     }
   });
 
-  it("reports the actual cold-desert response without inventing a scorer frost veto", () => {
+  it("reports locally supported tundra with unchanged source scores and native incompatibility, not a scorer frost veto", () => {
     const cold = runFlow(fixture("ordinary", 350, { temperature: 0, coldestMonthMeanTemperatureC: -6 }));
-    expect(biomeSymbolFromIndex(cold.biomes.biomeIndex[receiver]!)).toBe("desert");
+    expect(biomeSymbolFromIndex(cold.biomes.biomeIndex[receiver]!)).toBe("tundra");
+    expect(cold.indices.plantWaterStress[receiver]).toBeLessThan(0.5);
     expect(cold.biomes.freezeIndex[receiver]).toBe(Math.fround(2 / 14));
     expect(cold.oasis[receiver]).toBeGreaterThan(0);
     expect(cold.oasis[receiver]).toBeLessThan(0.42);
+    expect(cold.oasis[receiver]).toBeCloseTo(0.2759258, 6);
     expect(cold.wateringHole[receiver]).toBeGreaterThan(0.42);
+    expect(cold.wateringHole[receiver]).toBeCloseTo(0.5254416, 6);
     expect(cold.plannerInput.terrainBiomeCompatibilityMasks["watering-hole"][receiver]).toBe(0);
     expect(receiverPlacements(cold)).toEqual([]);
   });

@@ -111,6 +111,17 @@ authority to the root domain.
 Biome classification consumes Hydrology's annual and coldest-month-like temperature, atmospheric moisture/aridity,
 plant moisture/stress, and freeze indices without re-deriving them. Nonpolar moisture buckets and
 dryward shifts describe local plant habitat; polar categories retain atmospheric inputs.
+An incumbent nonpolar `desert` result additionally requires published `plantWaterStress > 0.5`.
+Otherwise the existing `semiArid` thermal lookup supplies tundra, temperate dry, or tropical
+seasonal habitat, never a direct forest promotion. With Hydrology's transform
+`S = D / (D + P + O + 1)`, the strict comparison requires modeled potential demand
+`D > P + O + 1`, where `P` is precipitation and `O` is local surface-water opportunity.
+The screen compares published Float32 stress, not a recomputation from separately rounded
+demand and opportunity outputs; the implication is not a biconditional at those boundaries.
+This is a necessary annual model-consistency screen, not an Earth-calibrated desert definition
+or proof of growing-season water sufficiency. It does not add a tuning threshold or change
+polar or incumbent non-desert categories. Fixed-input vegetation density remains independent
+of the biome symbol; relabeling can still change downstream feature and placement eligibility.
 Polar/boreal temperature rules use the annual field. Tropical versus temperate admission uses
 Hydrology's baseline/pre-albedo minimum circular one-twelfth-cycle mean, not an annual threshold
 shifted by wetness. The initial `tropicalColdMonthMeanMinC` of 18 C is an Earth-informed proxy
@@ -145,6 +156,9 @@ Feature scoring and planning stay separate:
   atmospheric climatic dryness. It has no isolation mask, second adjacency estimate, or whole-tile
   moisture requirement. Annual source support does not establish seasonal liquid-water survival,
   salinity, groundwater, or the extent of a habitable patch.
+  Source-led scores do not depend on biome identity: locally supported temperate dry habitat
+  can reject oasis through native compatibility while admitting watering-hole from the same
+  opportunity. A positive score alone neither retains DESERT nor overrides that planner gate.
   Mangrove occurrence scoring combines warmth and low aridity after that marine low-shore gate;
   it does not require generic fertility or the terrestrial `water01` multiplier. The gate is an empirical wet-habitat
   approximation, not a measurement of salinity, tides, freshwater access, or root uptake. Marsh and
