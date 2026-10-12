@@ -166,6 +166,39 @@ The final record must name:
 - unresolved links and lawful next action;
 - intentionally excluded work.
 
+## Learning-Layer Stewardship
+
+Use the repository's read-only notebook stewards for accepted causal
+explanations, not as an alternative scientific-model approval process:
+
+1. `mapgen-evidence-steward` qualifies one learner question against an immutable
+   revision, owner decisions and retained proof. Supply candidate source paths,
+   evidence identities and known contradictions. For a recheck, also supply the
+   existing lesson/card and changed dependencies with revisions. Missing material
+   proof yields DEFER; a narrow supported claim can be ELIGIBLE WITH LIMITS.
+2. `mapgen-algorithm-explainer` consumes an eligible card, pinned sources,
+   related-page map and renderer constraints. It returns a causal narrative,
+   checked illustrative example and faithful diagram specification, separately
+   from its claim-to-source and verification notes.
+3. `mapgen-notebook-editor` shapes a bounded set of those lessons into a learning
+   path. Supply the frame, cards, drafts, navigation constraints and the pinned
+   recipe-order source. Conceptual prerequisites and recipe execution order are
+   distinct. Partial coverage stays explicit.
+
+The parent integrates and verifies the result. Use a fresh evidence reader
+after material scientific edits; return disputed physical meaning to the
+existing Earth stewards rather than granting the learning layer model authority.
+Recheck when an input's meaning, producer, calculation, controlling consumer or
+acceptance evidence changes. A merged PR or a passing test count does not renew
+scientific admission automatically.
+
+These roles neither edit nor publish, run models or native games, choose a new
+viewer framework, nor own a permanent content format. Read-only configuration
+is a requested runtime constraint, not a claim about the caller's actual tool
+isolation. Parent verification must distinguish prompt behavior, configuration
+discovery and enforced runtime permissions. Keep deployment paths, private raw
+receipts and machine custody in the launch packet, not public agent definitions.
+
 ## Gate Summary
 
 | Gate | Required before passing |
