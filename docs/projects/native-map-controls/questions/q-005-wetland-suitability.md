@@ -547,8 +547,26 @@ eligible habitat and the zero admission floor fixed; every row still selects
 sagebrush, whereas explicit-zero-score controls select none. It is not evidence
 of generated reachability or a probability of occupancy. Category consistency,
 compatible habitat and an actual stand remain separate claims. Neither the
-offline result nor the probe supplies native acceptance, a sagebrush occurrence
-repair or a shared wetland floor.
+classifier result nor that probe supplies native acceptance or a shared wetland
+floor.
+
+The later [annual-support candidate][sagebrush-support] tests a different claim:
+compatible dry habitat is not by itself enough modeled support for a represented
+shrub stand. It requires a positive sum of annual precipitation and local
+surface-water opportunity, strictly exceeding 10% of annual potential demand,
+together with positive generic growth. Scores and the shared growth calculation
+remain unchanged. This is an authored annual-opportunity policy, not 10% ground cover,
+measured canopy, physiological maintenance or a calibrated species threshold.
+Local opportunity does not establish delivered root water or seasonal survival.
+
+Fifteen actual complete recipes remove 41 final sagebrush features only in the
+dry Huge seed 668178883; fourteen other maps retain complete observed, resource
+and placement identity. Other families hold. The changed case has resource and
+start consequences, retained in [Q-002's result][sagebrush-result], rather than
+an assumed unchanged landscape. This limited offline outcome does not prove
+widespread dryland vegetation wrong, settle the remaining habitat meanings or
+justify transferring the rule to wetlands. It is neither native qualification
+nor adoption; Q-002 remains the owner of the grouped dryland question.
 
 The [rainforest category witness][category-witness] shows why habitat support,
 family response and selection must remain distinct: changed local-water
@@ -560,6 +578,8 @@ transferring its score floor to rainforest or sagebrush. The grouped dryland
 stand question remains with [Q002][dryland-meaning].
 
 [category-witness]: q-002-ecological-prevalence.md#rainforest-habitat-is-not-a-native-feature-guarantee
+[sagebrush-support]: q-002-ecological-prevalence.md#an-annual-support-guard-not-a-cover-target
+[sagebrush-result]: q-002-ecological-prevalence.md#forty-one-fewer-features-in-fifteen-complete-recipes
 [dryland-meaning]: q-002-ecological-prevalence.md#flat-desert-is-not-necessarily-bare-desert
 [desert-census]: q-002-ecological-prevalence.md#desert-expansion-without-a-rainfall-change
 [desert-offline]: q-002-ecological-prevalence.md#offline-qualification-does-not-establish-ecological-adequacy

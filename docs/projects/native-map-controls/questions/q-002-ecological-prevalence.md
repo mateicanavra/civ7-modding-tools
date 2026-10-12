@@ -65,6 +65,10 @@ assessments:
     state: "supported"
   - claim: "The e5dbd836 water-limitation screen has scoped offline qualification on fifteen complete recipes: 3,576 incumbent desert cells change to existing open categories while 1,095 captured-field comparisons hold. This does not establish native acceptance, adoption, calibrated desert severity or improved bare-versus-shrub diversity; all 3,102 surviving flat desert cells still carry a feature."
     state: "supported"
+  - claim: "Exact-member diagnostics reproduce three retained e5dbd836 cases and their 144 original moisture calls. Net delivery to initial land is the larger descriptive dry/wet difference; no gross transport route, causal atmospheric defect or climate adjustment is established."
+    state: "supported"
+  - claim: "The e53024ca sagebrush support candidate has scoped offline qualification on fifteen actual complete recipes against retained e5dbd836 baselines. It removes exactly 41 final sagebrush features in one Huge case with captured climate, physical, biome and growth fields held; fourteen other maps retain complete observed, resource and placement identity. This is an authored annual-support policy, not measured cover, physiological maintenance, Earth calibration, native qualification or adoption."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms the ecology predicates and their unchanged numerical bounds; no benchmark or generation was run."
@@ -146,6 +150,16 @@ verification:
     revision: e5dbd83655f1f7f8f7ed2a1e76c80603df1b3313
     date: '2026-10-12'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/e5dbd83655f1f7f8f7ed2a1e76c80603df1b3313/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/classify.ts"
+  - kind: source-inspection
+    scope: "Inspection confirms the sagebrush-specific candidate guard requires positive annual precipitation plus local opportunity, strict support above the authored demand ratio, and positive generic growth. This is source inspection, not execution, calibration or native acceptance."
+    revision: e53024ca4773dd4d2e5749ba7765a945f77cd9ce
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/e53024ca4773dd4d2e5749ba7765a945f77cd9ce/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-vegetation/rules/admit-vegetation-intent.ts"
+  - kind: source-inspection
+    scope: "Inspection confirms the existing vegetation step forwards published climate precipitation, climate-indices demand and local surface-water opportunity to the planner. Complete-recipe qualification is separately retained; forwarding does not establish seasonal or root-water access."
+    revision: e53024ca4773dd4d2e5749ba7765a945f77cd9ce
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/e53024ca4773dd4d2e5749ba7765a945f77cd9ce/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/plan-vegetation/step.ts"
 ---
 
 # Q-002: Ecological Prevalence And Benchmark Authority
@@ -340,13 +354,48 @@ directed moisture flux. Annual arrows and lake adjacency cannot reconstruct
 the rain-producing paths. Even the unretained phase-mean winds already average
 the two weather members.
 
-The missing evidence belongs to the existing moisture calculation: actual
-phase/member inputs, source, deposition, atmospheric stock and directed
-marine-to-land and inland transport. Exact reproduction of the sealed public
-moisture outputs and reductions would establish custody before a causal
-interpretation. No such observation is established here, and no blanket rain
-multiplier, demand adjustment or new atmosphere is selected. This evidence gap
-is separate from the classifier result.
+The subsequent exact-member diagnostic supplies a narrower, completed account
+for **three cases, not all fifteen**: dry Huge 668178883, dry-temperate Huge
+912543090 and wet-comparison Huge 1594661164. Three diagnostic recipes reproduce
+their sealed complete captures except generation duration. All 144 original
+moisture calls retain their inputs and precipitation/wetness outputs. Separate
+same-owner replay reproduces those outputs, the 72 phase reductions, demand
+and annual publications. It is not an inferred route through annual wind arrows.
+
+For initial land, the diagnostic separates deposited water from water remaining
+in the modeled atmosphere at the end of each response window. Their sum is net
+import from the complement of initial land. That complement includes other
+initial water as well as the marine source; the sum is **not gross coastline
+entry or direct marine-to-land transport**.
+
+| Existing Huge Case | Net Land Amount / Marine Source | Deposited Share Of Net Land Amount |
+| --- | ---: | ---: |
+| 668178883, dry | 20.507% | 38.447% |
+| 912543090, dry temperate land | 22.708% | 38.386% |
+| 1594661164, wet comparison | 30.032% | 40.307% |
+
+Net delivery is the larger descriptive contrast, while the deposited-versus-
+remaining share is much closer. These are model-index quantities and accounting
+factors, not Earth millimetres, independent causal controls or precipitation
+efficiency measured against gross incoming flux. No moisture-accounting leak
+was found in these executions, but numerical closure is not Earth calibration.
+
+The broad temperate populations retain the rainfall contrast. They share a
+thermal definition, not matched geography, latitude, relief or wind exposure.
+Huge 912543090 also retains wet tropics: mean tropical precipitation is 181.714
+versus 179.792 in the wet comparator, in the same model units. A dry world is
+not uniformly dry in every region. No latitude-band comparison was inferred
+from missing per-cell latitudes.
+
+The existing moisture owner deliberately uses independent zero-start responses
+over a representative finite window, not an annual atmospheric stock trajectory
+or equilibrium horizon. A large end-window remainder alone is not a defect.
+This account does not reveal gross routes, coastal recrossings, travel times or
+source provenance. Geography and wind response versus a consequential
+finite-window approximation remain unresolved. **No causal atmospheric defect,
+blanket rain multiplier, demand adjustment or extra model is established.**
+The three-case diagnostic neither retunes climate nor changes the separate
+classifier and [shrub-support candidate](#an-annual-support-guard-not-a-cover-target).
 
 ### Rainforest Habitat Is Not A Native Feature Guarantee
 
@@ -566,7 +615,7 @@ one gate would turn every excluded humid cell into rainforest.
 
 ### Flat Desert Is Not Necessarily Bare Desert
 
-The [offline screen result](#offline-qualification-does-not-establish-ecological-adequacy)
+The [classifier-only offline screen result](#offline-qualification-does-not-establish-ecological-adequacy)
 reduces the number of desert cells but does not create bare-versus-shrub
 diversity. Of 3,102 surviving flat desert cells, 3,079 carry sagebrush (99.3%)
 and 23 carry minor floodplain: **none is feature-bare**. All 175 previously
@@ -574,6 +623,11 @@ bare flat desert cells leave DESERT because their low-demand classification
 was inconsistent. Their departure is not new bare habitat or a feature-policy
 improvement. This flat-desert partition excludes the four navigable desert
 floodplain features elsewhere in the candidate.
+
+The separate [support candidate below](#forty-one-fewer-features-in-fifteen-complete-recipes)
+changes that feature outcome without changing climate or desert classification.
+It is a small, measured policy change, not a solution to widespread desert
+appearance or proof that every densely featured dryland is ecologically wrong.
 
 The [post-yield census](#desert-expansion-without-a-rainfall-change) makes the
 earlier, pre-screen category/cover distinction concrete: 4,958 of 5,177 flat desert cells carry
@@ -594,6 +648,109 @@ interpretation: a feature on every large tile need not mean continuous shrub
 canopy. Its movement and yield effects nevertheless make the distinction
 between some plants and a gameplay-significant stand consequential.
 
+#### An Annual Support Guard, Not A Cover Target
+
+Compatibility asks whether a kind of vegetation can fit a site's habitat.
+Community support asks whether the model has enough support to represent a
+stand with gameplay effects. Neither question directly measures how much of
+the ground is covered by foliage. The shared growth field has an additive
+baseline and other environmental influences; it is not an independent canopy
+or cover measurement.
+
+Observed land-cover definitions make that distinction tangible. ESA WorldCover
+uses natural shrub dominance and at least 10% shrub cover for shrubland; its
+bare/sparse class permits vegetation but not more than 10% cover at any time
+of the year. These describe vegetation amount, not this pipeline's water ratio
+or growth index. Their numerical boundary does not calibrate either one.
+[WorldCover v2 manual, Table 3, page 15][worldcover-cover].
+
+The [frozen sagebrush candidate][sagebrush-support-rule] adds a family-specific
+annual-support check at vegetation planning. With annual precipitation `P`,
+local surface-water opportunity `O`, potential demand `D` and generic growth
+`g`, it requires:
+
+```text
+A = P + O
+A > 0 and A > 0.10 * D and g > 0
+```
+
+The [existing step][sagebrush-support-step] supplies these published fields;
+the authored [ratio parameter][sagebrush-support-config] is separate from
+habitat compatibility and the score floor. Existing terrain, occupancy,
+habitat and confidence gates still apply. No scorer, shared growth, climate
+or hydrology calculation changes.
+
+The `0.10` is an authored minimum annual opportunity relative to demand, not
+10% ground cover, a feature quota, physiological maintenance or a scientifically
+calibrated species threshold. `O` is opportunity, not conserved withdrawal or
+delivered root water. Annual admission does not establish seasonal survival,
+soil-profile access or actual native appearance. The positive-growth condition
+is a consistency gate, not a claim that growth measures fractional cover.
+
+A retained-input experiment reproduced all fifteen incumbent planners before
+testing the predeclared ratios 0.05, 0.10 and 0.20. They removed zero, 41 and
+209 of the same 3,079 sagebrush intents, respectively, with other families
+exact. At nominal 0.10, seven rejected sites had zero local opportunity and
+34 had positive but insufficient opportunity under the rule. All removals
+failed the water ratio, not positive growth. Those controls explain sensitivity;
+they do not select a parameter by a desired amount of bare ground.
+
+#### Forty-One Fewer Features In Fifteen Complete Recipes
+
+The production candidate has **scoped offline qualification**, separate from
+the retained-input experiment. Fifteen actual normal recipes, ten Huge and
+five Standard, compare frozen `e53024ca` with retained classifier-only `e5dbd836`
+captures. The baselines were not rerun. The full step and normal downstream
+pipeline execute, rather than only substituting a score in a planner replay.
+
+| Headless Outcome | Classifier-Only Baseline | Support Candidate |
+| --- | ---: | ---: |
+| Sagebrush features, all fifteen maps | 3,079 | 3,038 |
+| Sagebrush, Huge seed 668178883 | 659 | 618 |
+| Resources, that Huge case | 214 | 217 |
+| Resources, all fifteen maps | 3,186 | 3,189 |
+
+Exactly 41 final sagebrush features disappear, all in that one dry Huge case.
+They become feature-bare cells in the headless observation, not another
+vegetation family. The other fourteen maps retain complete observed-feature,
+resource and placement identity. Captured physical, climate, biome and growth
+fields and every other vegetation family hold. Independent review verifies
+1,020 exact captured-field comparisons, 68 per map, and the exact final-feature
+removal oracle; unretained fields are not silently included in those holds.
+
+The changed map also has eleven changed resource cells. Dates become represented
+with one placed site but a two-site planning shortfall; salt increases from five
+to seven, clearing its former planning shortfall. Other per-type counts hold.
+Zero resource placement rejections therefore does not mean zero planning
+shortfalls or adequate resource composition.
+
+One player start moves from `(85,13)` to `(85,14)`. Its ten starts remain legally
+seated with the modeled freshwater relation, and minimum spacing remains nine
+tiles. That map's dispersion index declines from 0.84869 to 0.83639. The actual
+dispersion gate evaluates the cohort mean, which changes from 0.99860 to 0.99778
+and passes in both arms; there is no per-map 0.85 gate.
+Across the cohort, all 140 starts remain legally seated, 138 have that freshwater
+relation, and the headless adapter reports no resource placement rejections or
+configured start-support shortfalls. This is not independent native resource
+admission or founding-bonus evidence. Natural-wonder placement holds; the resource
+increase and moved start are disclosed consequences,
+not an unchanged-placement claim.
+
+The same-fifteen vegetation-family diagnostic still has its **three-versus-four
+FAIL in both arms**, on unchanged case 6. It is not a passing registered eight-case
+study or an Earth-accuracy verdict. With 3,038 sagebrush features still present
+and fourteen maps unchanged, this guard does not solve broad desert appearance. It establishes
+the bounded outcome of an authored support policy without retuning the climate
+or selecting an additional physical model.
+
+The support candidate and its classifier parent remain draft, unmerged and
+unadopted. The parent's verified installation does not prove installation,
+fresh loading or native realization of this child. Its native appearance,
+resource behavior and start behavior remain unqualified. Current and normative
+Learning retain their separately admitted authority.
+
+#### Earlier Scorer And Growth-Proxy Evidence
+
 A separate controlled operation composition at the frozen candidate calls the
 public sagebrush scorer and planner with an explicitly eligible flat, free
 desert tile, competitors at zero and the authored zero score floor. Varying
@@ -610,9 +767,10 @@ Explicit-zero-score controls produce no intent. Under these controlled eligible
 inputs, reducing a positive score alone does not reduce deterministic occurrence.
 The probe does not establish that the constructed inputs arise in generated
 worlds, that zero atmospheric water means no local support, or that scores are
-occupancy probabilities. No replacement threshold, probability or stand policy
-is selected. Compatible shrub habitat and an actual cover feature remain
-different claims.
+occupancy probabilities. That probe alone selected no replacement threshold,
+probability or stand policy. The later annual-support candidate above has its
+own authored meaning and complete-recipe proof; compatible shrub habitat and
+an actual cover feature remain different claims.
 
 The earlier annual-gate census found 4,314 flat desert cells: 4,071 sagebrush,
 153 feature-bare, 89 minor desert floodplain and one oasis. Sagebrush occupied
@@ -652,8 +810,9 @@ unsupported.
 
 The open distinction is between conditions permitting plants and conditions
 warranting the native stand representation. A calibrated physical occurrence
-boundary has not been established, and an empirical gameplay stand-significance
-policy has not been selected. The [related wetland question][wetland-meaning]
+boundary has not been established. The annual-support candidate is an authored
+approximation, not an empirically calibrated stand-significance boundary.
+The [related wetland question][wetland-meaning]
 separates habitat support, family response and admission policy without assuming
 that one family's floor applies to another.
 
@@ -1258,6 +1417,61 @@ an observed current world.
 | Completed owner deployment log | `9f746cf5981c5f6c65ddca18d7f2b788b349039964d009167951dd13c2d0a5b1` |
 | Bounded unsuccessful native-access observations | `d7917d5e667d9fa294d662d304b39240eebe69b76ac79a4f02c283a4b45e54d5` |
 
+### Three-Case Moisture Accounting Provenance
+
+The diagnostic uses frozen `e5dbd83655f1f7f8f7ed2a1e76c80603df1b3313` and
+exactly three cases from its fifteen-map qualification. The capture phase runs
+three diagnostic recipes; the accounting phase runs zero recipes and 144
+canonical helper replays. The director independently checks accounting custody
+and nine account/member/cell seals. The written population postprocess is not
+another model execution. These observations narrow the earlier missing-member
+gap for this population only; gross routes and causal transport defects remain
+unestablished.
+
+| Retained Diagnostic Evidence | SHA-256 |
+| --- | --- |
+| Original-member capture receipt | `1fb217e4e1113665c7f0d8ea425f5aa755bda678c16cf6910777856ab3aabb95` |
+| Exact-member accounting receipt | `d2eb4c1273665a4c35465582fd8929a6ac9ec952950b1c67cf279a76c3727635` |
+| Completed account and interpretation | `7acaed98861f8d444538bbe9b2be05850fde168643298ea696ef2b13689e8181` |
+| Initial-land thermal populations | `d24b1adcba30e4e6ad4324f92f5ec714490c7b6e665818726b1ecb9e579faec5` |
+| Finite-window model-scope review | `99b35c01443f4a5137ea5d1e41183f2c3895219e5b3ea0bcc1fffc6dadbae619` |
+| Director's diagnostic disposition | `5fae89d938e8dd57b03009fe34d1748c4aa4e0c77c6ec573fd2ad465e6ffbc46` |
+
+### Sagebrush Support Qualification Provenance
+
+The actual production candidate is
+`e53024ca4773dd4d2e5749ba7765a945f77cd9ce`, tree
+`d0d0d9a133098bd7762566f5130be2d9cf4066c8`, immediately above frozen
+classifier source `e5dbd83655f1f7f8f7ed2a1e76c80603df1b3313`.
+[PR 2375][sagebrush-support-review] remains a separate draft from its classifier
+parent. Its source and authored configuration change only within the qualified
+support scope; configuration bytes are not an identity claim because the new
+ratio property is added at 0.10. Captured physical and other stated output holds
+are separate from source/configuration identity.
+
+The full-mode receipt records fifteen production-operation calls and fifteen
+actual normal recipe starts, with no baseline rerun. The director's independent
+review verifies all 111 output seals, fifteen prior capture seals, 1,020 exact
+captured comparisons and the final-feature removal oracle. That review runs
+zero new recipes. The earlier retained-input experiment is a different proof,
+including the 0.05 and 0.20 sensitivity controls; only nominal 0.10 has this
+complete-recipe qualification. Native installation, loading, appearance,
+runtime resource/start behavior and adoption are not supplied by these receipts.
+
+| Retained Support Evidence | SHA-256 |
+| --- | --- |
+| Predeclared retained-input experiment | `4893506338fbc74416cd802153d9ef258277d1cdd7788be0a03974295df7253f` |
+| Actual fifteen-recipe production receipt | `f0b18a79e51a411722a4cbbbf3b827ed6351e556793341139b24d1b7235c874d` |
+| Actual production outcome summary | `639a501063ee3a485722eb94521d771f0f0bcc76360d8d841e96b6048d247746` |
+| Independent production-outcome review | `aefae20347d49dff0cb4ce39ff00dec9302eb8feeb9bb5a699a70fe411d0e8f0` |
+| Executed independent review script | `96f70c559d5ef10d632a8a27d9c319d4a86d09548b5b5f91646afc7e1275ab2b` |
+| Director's production qualification and downstream interpretation | `236cbc3f62292ca777a73dcab9667c2d918fcd218c57ec14abe4f59f20360821` |
+
+[worldcover-cover]: https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/docs/WorldCover_PUM_V2.0.pdf
+[sagebrush-support-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/e53024ca4773dd4d2e5749ba7765a945f77cd9ce/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-vegetation/rules/admit-vegetation-intent.ts
+[sagebrush-support-step]: https://github.com/mateicanavra/civ7-modding-tools/blob/e53024ca4773dd4d2e5749ba7765a945f77cd9ce/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/plan-vegetation/step.ts
+[sagebrush-support-config]: https://github.com/mateicanavra/civ7-modding-tools/blob/e53024ca4773dd4d2e5749ba7765a945f77cd9ce/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/features-plan-vegetation/strategies/habitat-confidence/config.ts
+[sagebrush-support-review]: https://github.com/mateicanavra/civ7-modding-tools/pull/2375
 [identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
 [ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
 [study-policy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/STUDIES.md
