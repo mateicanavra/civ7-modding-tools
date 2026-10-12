@@ -39,6 +39,8 @@ assessments:
     state: "unassessed"
   - claim: "One existing-case recapture establishes producer-reachable atmospheric seasonal exposure, but not a justified classifier change: all 21 positive-gap rainforest-biome cells have annual local-water support of unknown seasonal persistence, and all ten free lawful rainforest slots already place. Annual behavior was retained against that seasonal-water challenger, not validated for tropical thermal admission or whole-land biome diversity."
     state: "supported"
+  - claim: "A separate implemented thermal candidate replaces the annual tropical gate and atmospheric wetness-to-temperature adjustment with Hydrology's coldest circular one-twelfth-cycle mean and a provisional 18 C criterion. Fixed-fifteen and existing-eight headless comparisons demonstrate habitat-to-feature recovery with protected annual fields and scores held. Source/headless acceptance does not establish native qualification or a full seasonal-water habitat model."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Inspection confirms the frozen recipe's real classifyBiomes binding; the owning step and classifier operation are unchanged through ae8. This is navigation/source identity, not physical qualification."
@@ -82,9 +84,12 @@ verification:
 How well does this model's tropical boundary describe the intended habitat?
 A continuous climate field must eventually become discrete biome categories.
 Crossing a category boundary is expected. The retained owner meaning is an
-intentional, **uncalibrated annual temperature/atmospheric-moisture envelope**, not
-a demonstrated classifier defect. Its empirical support and the merits of
-alternative boundaries remain open.
+intentional, **uncalibrated annual temperature/atmospheric-moisture envelope**.
+Its earlier consistency findings remain valid for that baseline. A separate
+[cold-season thermal candidate](#persistent-warmth-is-a-separate-question) now
+has accepted source/headless evidence: it changes the information used for
+tropical admission, not the annual climate itself. Native qualification and
+broader habitat adequacy remain open.
 
 The owner is **Ecology / Biomes / Biome Classification**, after Hydrology has
 produced climate and local plant-water fields, and before features and native
@@ -97,6 +102,10 @@ The retained monotonicity finding and the
 different claims. A rule can behave consistently while lacking information
 needed to distinguish some forest regimes. In particular, `tropicalSeasonal`
 names an annual moisture category here, not a measured dry-season duration.
+
+The annual guarded rule and retained pair below describe their original source
+vintages. They are not the candidate's new tropical rule. The candidate outcome
+does not retroactively change those findings or the notebook's navigation pin.
 
 ## Two Different Uses Of Moisture
 
@@ -135,7 +144,7 @@ not establish that wetter conditions have reduced the modeled water supply.
 
 ## Annual Categories And Seasonal Regimes
 
-The model's [rainforest lookup][current-lookup] describes a hot, humid annual
+The baseline [rainforest lookup][current-lookup] describes a hot, humid annual
 envelope, not a scientifically calibrated forest regime. The distinction is
 more than terminology: climate capable of supporting a forest, the amount of
 vegetation, and actual tree cover are different claims.
@@ -176,6 +185,10 @@ publish annual quantities, and [climate refinement][annual-refinement] derives
 its later demand from annual post-albedo temperature and annual wetness. That
 later demand is distinct from the phase-derived demand used by hydrography.
 The rainforest decision does not receive the chronology.
+
+That describes the retained baseline's forwarding. The thermal candidate adds
+one durable summary of cold-season temperature, not full phase histories or a
+seasonal water balance. The annual water meanings below remain separate.
 
 Its [plant-water indices][annual-water] combine annual precipitation, wetness
 and local surface-water opportunity algebraically. They are not seasonally
@@ -289,19 +302,31 @@ generated water witness examines atmospheric shortfalls and uncertain local-wate
 persistence. Neither establishes that annual mean temperature is an adequate
 substitute for the cold part of the temperature cycle.
 
-The separate thermal alternative is a Hydrology-owned **minimum circular
+The separate implemented thermal candidate uses a Hydrology-owned **minimum circular
 one-twelfth-cycle mean** from the existing periodic temperature curve: the
 coldest month-like interval, not its coldest sampled instant or one chosen
 permanent season. The initial 18 degrees C criterion is informed by the
 [Koppen-Geiger tropical criterion][peel], but remains a provisional model
-choice, not a universal physiological boundary. Its scope is tropical admission
-rather than a change to annual climate, water or vegetation density. The annual
-moisture policy remains distinct from a full seasonal rainforest classification.
+choice, not a universal physiological boundary. It replaces the annual tropical
+temperature gate and atmospheric wetness-to-temperature adjustment rather than
+adding another veto on top of them. Annual temperature still serves the cold
+zones and annual growth/demand meanings; annual plant-water categories remain
+distinct from a full seasonal rainforest classification.
 
-This alternative is authorized for implementation but **unqualified and
-unshipped**. A proposed distinction and higher potential counts do not establish
-useful recovery in generated worlds or acceptable downstream consequences.
-The closed water challenger is not a closure of this thermal question.
+**The lesson is to preserve the summary each decision needs, not to choose one
+season or discard annual means everywhere.** The same periodic temperature curve
+can supply an annual mean for annual processes and a cold-season constraint for
+persistent tropical warmth. This candidate uses the baseline, pre-albedo thermal
+curve; newly tropical cells in the qualification have neutral annual albedo
+correction. It does not add seasonal soil storage, uptake or dry-season survival.
+
+The [fixed-map comparison][seasonal-outcomes] demonstrates formerly excluded
+humid habitat reaching final Rainforest, with annual physical, climate, water,
+vegetation-density and fifteen biome-independent score fields held. Gains,
+losses and sparse cases are reported together. The source/headless correction
+is accepted after an independent outcome audit, not merely authorized for
+implementation. That acceptance is neither deployment nor native qualification,
+and does not close the seasonal-water question or broader biome-quality question.
 
 ### Why This Is Not Another Score Repair
 
@@ -386,16 +411,12 @@ A narrower annual hot/wet proxy, described accurately, remains a comparator,
 not a validated account of persistent tropical warmth. A broader humid-forest
 interpretation or additional seasonal evidence would need to preserve a useful
 physical or gameplay distinction, with producer-reachable support and a
-defensible downstream consequence. The single generated witness establishes
-exposure, not that consequence. Warm
-aseasonal forest, cooler humid forest, seasonally dry tropical land and temperate
-wet land are candidate contrasts, not newly established classification outcomes.
-The seasonal-thermal alternative
-above is not yet a qualified production change, and it does not select a
-seasonal soil-water model. The design question is which distinction earns
-representation and produces useful whole-land outcomes. Raising rainforest
-counts alone is insufficient, but complete placement inside a narrow admitted
-population is not evidence of an adequate world either.
+defensible downstream consequence. The water witness alone establishes exposure,
+not that consequence. The separate thermal result now demonstrates a useful
+habitat-to-feature effect for its fixed populations, while leaving seasonal
+soil water and full forest-regime classification unresolved. Raising rainforest
+counts alone remains insufficient, but complete placement inside a narrow
+admitted population is not evidence of an adequate world either.
 
 Retention would be challenged by a same-input violation under a shipped
 configuration, an explicit rejection of the joint-envelope meaning, or evidence
@@ -490,11 +511,13 @@ member to the separate fifteen-case river qualification.
 | Ordered placement reconciliation | `5dae3cbf7ebb4b6cf5a790222bf329aa5c0aebb24e542e641db029a68a174b52` |
 | Retained-model closure | `45e0581abe56358fb30e23a631c675012aa0ebace717dff504593fc7558e8c81` |
 
-The separate seasonal-thermal alternative has a predeclared definition, not a
-qualification result. Its retained identity below supports the stated proposal
-scope only. It adds no generated population, validated recovery or adopted
-behavior to this sheet. The water-witness closure above is not evidence for
-accepting or rejecting that different thermal mechanism.
+The separate seasonal-thermal mechanism retains its predeclared definition
+below. That definition is not a result; the [later source/headless evidence][seasonal-evidence]
+has its own candidate source, 23 executions, reused fifteen-case baseline and
+separately acquired eight-case baseline. Independent outcome audit and acceptance
+apply to that bounded result, not to deployment, native behavior or a full
+seasonal-water model. The water-witness closure above neither supplies nor
+invalidates that different thermal evidence.
 
 | Candidate Definition, Not Outcome | SHA-256 |
 | --- | --- |
@@ -523,6 +546,8 @@ accepting or rejecting that different thermal mechanism.
 [mangrove-retention]: q-005-wetland-suitability.md#when-suitability-reserves-the-only-feature-slot
 [current-river-choice]: q-002-ecological-prevalence.md#current-cooling-qualification-and-adoption
 [whole-land-coverage]: q-002-ecological-prevalence.md#whole-land-habitat-and-feature-coverage
+[seasonal-outcomes]: q-002-ecological-prevalence.md#seasonal-thermal-recovery-and-its-limits
+[seasonal-evidence]: q-002-ecological-prevalence.md#whole-land-census-and-qualification-coverage
 [peel]: https://hess.copernicus.org/articles/11/1633/2007/hess-11-1633-2007.pdf
 [fao-zones]: https://www.fao.org/4/ap861e/ap861e00.pdf
 [lugo]: https://data.fs.usda.gov/research/pubs/iitf/ja_iitf_1999_lugo002.pdf

@@ -146,8 +146,10 @@ atmospheric seasonal exposure, but all positive-gap rainforest cells have annual
 local-water support of unknown seasonal persistence and all free lawful slots
 already place. That atmospheric-water challenger does not establish a classifier
 change; it does not validate annual tropical thermal admission or whole-land
-diversity. The separate cold-season thermal alternative remains unqualified and
-unshipped, not resolved by the water finding.
+diversity. The separate implemented cold-season thermal rule now has accepted
+source/headless recovery with annual physical, climate and water summaries held.
+It replaces tropical admission, not all annual means, and is not a seasonal
+soil-water model. Native qualification and broader biome quality remain open.
 [Read the research question](questions/q-007-biome-transition-meaning.md).
 
 ### Ecology / Features / Score Layers
@@ -191,6 +193,10 @@ tradeoffs stay separate. Habitat meaning, omitted seasonal/tidal processes and
 shared admission remain open; no priority reversal or rainforest quota is selected.
 The adopted river selector changes available surface, not wetland policy; the
 thirty-capture occurrence audit remains tied to its reviewed 0.92 configuration.
+The separate seasonal-thermal comparison changes family eligibility at unchanged
+physical inputs and scores. Mangrove/forest exchanges and sixty forest-to-empty
+sites expose grouped family admission/occurrence consequences, not physical
+drying, sixty independent defects or justification for lower floors.
 [Read the research question](questions/q-005-wetland-suitability.md).
 
 ### Placement / Assign Starts / Climate Comfort
@@ -229,8 +235,13 @@ distinct populations; none turns these counts into ecological calibration.
 The whole-land census separates narrow rainforest habitat from near-blanket
 sagebrush coverage of flat desert. Filling admitted slots does not establish
 sufficient abundance or diversity. The earlier cooling qualification omitted
-the existing eight-Standard ecology study; climate and placement passes do not
-establish that different cohort's vegetation requirements.
+the existing eight-Standard ecology study. A later paired comparison supplies
+that evidence without changing its thresholds: the adopted baseline fails and
+the seasonal-thermal candidate passes, while two seeds still have only one and
+two Rainforest features. The fixed fifteen maps show habitat-to-feature recovery
+with losses reported; one Huge map remains at zero. This is accepted source/headless
+evidence, not native qualification or whole-land adequacy. Dryland occurrence
+remains a separate unresolved question.
 [Read the research question](questions/q-002-ecological-prevalence.md).
 
 ### Benchmark Authority / Relief And Orogeny

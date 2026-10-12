@@ -50,6 +50,8 @@ assessments:
     state: "supported"
   - claim: "The whole-land census of the same fifteen adopted-equivalent captures contains 1,233 rainforest-biome cells and 248 Rainforest features on 32,561 exposed cells. Of 4,314 flat desert cells, 4,071 carry sagebrush and only 153 are feature-bare. Complete placement within admitted habitat does not establish sufficient habitat extent or overall biome diversity."
     state: "supported"
+  - claim: "The seasonal-thermal candidate's headless comparison raises rainforest habitat from 1,233 to 2,174 and final Rainforest from 248 to 553 across the same fifteen exposed-land populations, with 974 habitat additions/33 losses and 309 feature additions/four losses. Annual physical, climate, water, density and fifteen biome-independent score fields hold. The unchanged eight-Standard ecology study passes, but sparse and zero-rainforest cases remain; this is not native qualification or whole-land adequacy."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms the ecology predicates and their unchanged numerical bounds; no benchmark or generation was run."
@@ -179,6 +181,16 @@ therefore do not establish its vegetation-diversity requirements, including
 qualification-coverage gap, not a reported failed ecology run. The separate
 fifteen-case census below is not a substitute result for this different cohort.
 
+The later seasonal-thermal comparison supplies that missing cohort evidence
+separately: the eight-case exact-adopted baseline study fails its vegetation-family
+variety and rainforest-presence requirements, while the unchanged candidate study
+passes without threshold edits or newly failing per-map expectations. Yet
+Standard seeds 1 and 3 contain only one and two Rainforest features. Presence is not adequate
+abundance, and a passed study is not Earth calibration. The zero-rainforest Huge
+case in the [fifteen-map comparison](#seasonal-thermal-recovery-and-its-limits)
+belongs to a different population, not an unreported failure of this eight-case
+study.
+
 ### Cold Reefs Across Eight Huge Maps
 
 The [cold-reef cohort][cold-reef-protocol] uses the same eight seeds at Huge
@@ -217,11 +229,13 @@ law.
 **Complete placement within admitted habitat is not the same as adequate
 whole-land abundance or diversity.** The census re-examines the same fifteen
 adopted-equivalent captures: ten Huge and five Standard maps, stronger cooling
-and major-river percentile 0.95. It adds no map generation. Its denominator is
+and major-river percentile 0.95, with the adopted annual tropical gate. This
+**annual-gate baseline** predates the seasonal-thermal candidate below. The census
+adds no map generation. Its denominator is
 all 32,561 exposed cells, including navigable terrain but excluding finite lakes
 and external ocean, rather than only the sites that qualify for a feature.
 
-| Current Outcome | Cells | Share Of All Exposed Cells |
+| Annual-Gate Baseline Outcome | Cells | Share Of All Exposed Cells |
 | --- | ---: | ---: |
 | Rainforest-biome habitat | 1,233 | 3.787% |
 | Rainforest features | 248 | 0.762% |
@@ -231,18 +245,46 @@ and external ocean, rather than only the sites that qualify for a feature.
 
 These rows overlap; they are not an additive partition. All are headless
 outcomes, not a new native census. There are 6,594 cells in the classifier's
-current adjusted-humid categories, but 5,361 are outside its tropical thermal
+baseline adjusted-humid categories, but 5,361 are outside its tropical thermal
 category. Among the 1,233 rainforest-biome cells, geometry leaves 864 flat
 sites; earlier mangrove and minor floodplain occupy 616, leaving the 248 that
 receive Rainforest. This is ordered accounting, not a prediction that changing
 one gate would turn every excluded humid cell into rainforest.
 
+#### Seasonal-Thermal Recovery And Its Limits
+
+The [cold-season thermal candidate][seasonal-thermal] changes habitat admission
+without changing the captured annual climate, water, physical fields or
+vegetation density. On the same 32,561 exposed cells, the final headless features
+change as well as the theoretical habitat. Additions and losses are separate
+same-site counts, not just the net difference.
+
+| Population | Annual-Gate Baseline | Thermal Candidate | Added | Lost |
+| --- | ---: | ---: | ---: | ---: |
+| Rainforest-biome habitat | 1,233 | 2,174 | 974 | 33 |
+| Rainforest features | 248 | 553 | 309 | 4 |
+| Savanna woodland features | 26 | 317 | 291 | 0 |
+| Forest features | 3,622 | 3,047 | 27 | 602 |
+
+Every added rainforest-habitat cell belongs to the previously annual-gate-excluded
+humid population, and 309 of those recovered sites carry final Rainforest.
+All fifteen biome-independent score layers hold, so the gains are not a wetter
+climate, a boosted vegetation score or a feature quota. Forest losses and other
+[family-competition consequences][seasonal-occurrence] remain visible rather
+than being treated as automatically desirable exchanges.
+
+Fourteen of fifteen maps gain final rainforest. Huge seed `1419989910` remains
+at zero, with rainforest habitat changing from 32 to 30 cells. This is useful
+end-to-end recovery, not universal recovery or adequate whole-world diversity.
+The source/headless correction is accepted after independent outcome audit;
+deployment and native qualification are not established by this evidence.
+
 #### Flat Desert Is Not Necessarily Bare Desert
 
-The 4,314 flat desert cells divide into 4,071 sagebrush, 153 feature-bare,
-89 minor desert floodplain and one oasis. Sagebrush occupies 94.367% of flat
-desert. In the first Huge case, 332 flat desert cells contain 324 sagebrush,
-four bare and four minor floodplain. Bare surface is scarce even where the
+In the annual-gate baseline, 4,314 flat desert cells divide into 4,071 sagebrush,
+153 feature-bare, 89 minor desert floodplain and one oasis. Sagebrush occupies
+94.367% of flat desert. In the first Huge case, 332 flat desert cells contain
+324 sagebrush, four bare and four minor floodplain. Bare surface is scarce even where the
 desert biome itself is extensive.
 
 The remaining bare cells are not a representative warm-desert population:
@@ -259,6 +301,9 @@ partial surface-capacity improvement, not resolution of either question.
 Earth observations can inform sensible distributions across a varied cohort
 without requiring each generated map to reproduce Earth's proportions. This
 census identifies contractions; it selects neither a target count nor a repair.
+The thermal result does not supply a new dryland census or resolve the
+occurrence/support question. A native DESERT identity is not itself a physical
+aridity class, and positive suitability is not calibrated full-tile occurrence.
 
 ### Rainforest Habitat And Feature Occupancy
 
@@ -579,11 +624,36 @@ fifteen-case NAV qualification.
 
 | Retained Census And Coverage Evidence | SHA-256 |
 | --- | --- |
-| Whole-land census report | `ad86184a16f1068152c776bd6ffb4f7d908e1be7b576bf41a697d7e51e251057` |
+| Earlier whole-land census report version | `ad86184a16f1068152c776bd6ffb4f7d908e1be7b576bf41a697d7e51e251057` |
+| Census report with clarified population labels | `60cd2f97dd8624d3947187b7066ead34c9779bd239dc0246ced94707453f75b2` |
 | Census reduction receipt | `72df0d415ad859c0385223270232bcb224637cf194b7b3c90be35dfc37eefefa` |
 | Whole-land and per-map analysis | `cd09500af47d03247392aa0e7c30b5beafa2c681685902dee49035db4f49056b` |
 | Earlier cooling-production study manifest | `762481ff1dbfad2ee3aa0aee5ee0caa7ee2356e54fa659229702ac131bfe219e` |
 | Earlier cooling-production execution receipt | `54d47c2893055cce41d64ccff70018e23aa7120e9290923eb6fdf1b51fc2a7a0` |
+
+The later seasonal-thermal result has a distinct execution population: 23
+candidate maps, comprising the same ten Huge/five Standard cases and the existing
+eight-Standard ecology study. The fifteen old baselines are reused unchanged;
+the eight missing exact-adopted baselines are acquired separately once each.
+There is no seed or threshold sweep. The earlier omission remains historical
+fact rather than being retroactively described as a completed ecology run.
+
+Candidate source is `acf3ba936977fa36342eb0c645a7d9bf0675e6d5`, tree
+`ba1e61f5f1a557dd884001041a75b95b5295a9a4`. Its source/headless qualification and
+independent sealed-output audit support the bounded comparisons above, not a
+release, native observation or calibrated abundance claim. The five new-baseline
+build-wrapper import-order differences are disclosed in retained custody;
+universal runtime byte equivalence is not claimed. This sheet inspects retained
+results without repeating generation or reduction.
+
+| Seasonal-Thermal Outcome Evidence | SHA-256 |
+| --- | --- |
+| Outcome review including independent-audit findings | `f2536c09715b7adbf868d62ff350b1f73bcceb594afeda39bd67e656aba8fb2f` |
+| Candidate execution receipt | `27ff21106d6af07459c4d0fbfb87be4fe2f64c97d960ff52e98dff67b3fe812f` |
+| Candidate outcome summary | `989b52d45b5c3fc10cb78f79b60116d6c6f7061a3d1cfd55b91d928c6c62554b` |
+| Unchanged eight-case ecology comparison | `39daabef82e1be6fce0b22bcd2055bb690397b0de96a3113819d856bb6645478` |
+| Exact-adopted eight-case baseline receipt | `fc9caf97f3353f4c5129c94387300fb95bf1f7f42cc2a78a4b7994cd42d0e701` |
+| New-baseline runtime inventory qualifications | `b11ed0c1e00f8733300907b445803bea0c9e824a0592b40f76c0644670b18b8e` |
 
 [identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
 [ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
@@ -609,3 +679,5 @@ fifteen-case NAV qualification.
 [adopted-river-test]: https://github.com/mateicanavra/civ7-modding-tools/blob/9f425885815ba314b8304bc414122c2dd769217c/plugins/mod/map/swooper-physics/test/maps/map-config-schema.test.ts#L356-L367
 [cooling-ecology-study]: https://github.com/mateicanavra/civ7-modding-tools/blob/6c5c8a82e7d36c17371699104ec58b3830f0e06d/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/studies/benchmarks/earthlike-ecology.study.ts#L10-L31
 [cooling-rainforest-presence]: https://github.com/mateicanavra/civ7-modding-tools/blob/6c5c8a82e7d36c17371699104ec58b3830f0e06d/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts#L181-L186
+[seasonal-thermal]: q-007-biome-transition-meaning.md#persistent-warmth-is-a-separate-question
+[seasonal-occurrence]: q-005-wetland-suitability.md#biome-compatibility-changes-cover-without-changing-scores

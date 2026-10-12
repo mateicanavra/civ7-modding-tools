@@ -73,6 +73,8 @@ assessments:
     state: "supported"
   - claim: "Mangrove admission covers 477 of 488 and 411 of 418 already-filtered legal, flat, free marine-low-shore candidates. The conditional 97.7% and 98.3% rates are not evidence of physically sufficient occurrence discrimination."
     state: "supported"
+  - claim: "The separate seasonal-thermal outcome audit reports mangrove/forest exchanges and sixty former forest cells becoming featureless across twenty-three headless maps while physical inputs and independent scores hold. Biome compatibility changes which families may occupy a site; unsupported replacement families expose an occurrence question, not physical drying or authority to lower a floor."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms separate family operations and actual atmospheric-water, plant-water and climate-field bindings; it does not calibrate their physical responses."
@@ -153,6 +155,10 @@ dual-qualified sites. The [bounded occurrence review](#when-suitability-reserves
 retains mangrove priority without establishing an admission repair or validating
 ecological coverage. **Q-005 remains open** for habitat meaning, the remaining
 responses and admission.
+
+The [seasonal-thermal comparison](#biome-compatibility-changes-cover-without-changing-scores)
+exposes another route to changed cover: a different biome admits different
+families even when the physical inputs and their suitability scores stay fixed.
 
 ## Three Responses, Not One Wetland Score
 
@@ -351,6 +357,34 @@ The thirty-capture occurrence audit above remains evidence at its reviewed
 0.92 configuration, not a fresh replay of the adopted 0.95 surface. Q002 owns
 the distinct fifteen-case qualification, matched native pair and their limits.
 
+### Biome Compatibility Changes Cover Without Changing Scores
+
+The separate [seasonal-thermal result][seasonal-outcomes] changes family
+eligibility without changing physical inputs or the fifteen biome-independent
+score layers. In its retained fifteen cases, mangrove rises from 471 to 541:
+93 forest sites become mangrove and 23 mangrove sites become forest. The
+wetland planner's biome compatibility changes admission, not the site's water
+supply or mangrove score. Floodplain footprints and minor/navigable classes also
+hold while biome-specific identities change, including grassland to tropical
+floodplain. A changed feature name need not mean a changed physical process.
+
+Across **all twenty-three cases**, including the separate eight-map ecology
+study, sixty former forest cells become featureless. Fifty-seven enter
+`tropicalSeasonal` habitat with an unchanged savanna score of zero; three enter
+rainforest habitat with unchanged scores below the **Rainforest-specific 0.29
+floor**, not the wetland floor of 0.42. The new biome no longer admits the old
+forest family, but its replacement family is not supported by the existing
+score/admission rules. These are visible-cover losses, not climate moisture loss;
+featureless does not also mean resource-free.
+
+Together these outcomes sharpen one existing challenge: do biome compatibility,
+family responses and earlier-slot priority provide adequate occurrence
+discrimination? They do not establish sixty independent defects, a mandatory
+fallback feature, a lower floor or reversed mangrove priority. The source/headless
+result is accepted after independent audit, but native behavior and whole-land
+quality remain unestablished. The earlier thirty-capture occurrence decision
+retains its own scope rather than becoming proof for this different comparison.
+
 ## Changed Forcing, Retained Responses
 
 The moisture integration changes the environment supplied to these families,
@@ -471,6 +505,9 @@ with all scores held fixed instead isolates selection policy. A change in
 climate or habitat support tests a third explanation, not the floor itself.
 These distinctions prevent a higher feature count from concealing which
 hypothesis changed.
+The seasonal-thermal result adds a concrete family-admission case: a site can
+retain all modeled growth conditions yet change cover because its newly admitted
+biome and existing feature responses do not select the same family.
 
 Evidence of physically marginal sites would support their rejection. Suitable
 sites systematically excluded by a response factor would challenge that
@@ -540,6 +577,16 @@ the following custody digests, not supplied as public reproduction downloads.
 | Same-site audit method | `875c6cd42f8565bb843715e5f89f9b96be77b93ac8108d231309a12a97af728b` |
 | Same-site audit results | `13aa53117dc56347574821d3090d88364eeb6c76dc515300860494a249f7bf0b` |
 
+The separate seasonal-thermal account refers to candidate source
+`acf3ba936977fa36342eb0c645a7d9bf0675e6d5`, tree
+`ba1e61f5f1a557dd884001041a75b95b5295a9a4`. Its [retained outcome review and
+qualification custody][seasonal-evidence] distinguish the fifteen-map comparison
+from the eight-map ecology study. The independent audit's complete final-feature
+accounting supports the transitions reported here; the runner's selected changed
+cells are not an exhaustive ledger of natural-wonder relocation. Feature-cell
+counts are not counts of placed wonders. This sheet inspects the retained review,
+not a new reduction, native observation or general feature-policy qualification.
+
 [scores]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts
 [marsh]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-marsh/strategies/temperate-hydromorphic/index.ts
 [bog]: https://github.com/mateicanavra/civ7-modding-tools/blob/d17abf6f54b018600b2d13c139e8be485e2aa732/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-tundra-bog/strategies/cold-hydromorphic/index.ts
@@ -568,6 +615,8 @@ the following custody digests, not supplied as public reproduction downloads.
 [point-water]: q-004-point-water-support.md
 [prevalence]: q-002-ecological-prevalence.md
 [rainforest-population]: q-002-ecological-prevalence.md#rainforest-habitat-and-feature-occupancy
+[seasonal-outcomes]: q-002-ecological-prevalence.md#seasonal-thermal-recovery-and-its-limits
+[seasonal-evidence]: q-002-ecological-prevalence.md#whole-land-census-and-qualification-coverage
 [rainforest-evidence]: q-002-ecological-prevalence.md#rainforest-evidence-scope-and-provenance
 [retained-mangrove]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-mangrove/strategies/warm-intertidal/index.ts
 [retained-vegetation]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/plan-vegetation/step.ts
