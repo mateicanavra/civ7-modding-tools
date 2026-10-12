@@ -480,7 +480,7 @@
         "strategy": "discharge-percentiles",
         "config": {
           "minorPercentile": 0.74,
-          "majorPercentile": 0.92,
+          "majorPercentile": 0.95,
           "minMinorDischarge": 0,
           "minMajorDischarge": 0
         }

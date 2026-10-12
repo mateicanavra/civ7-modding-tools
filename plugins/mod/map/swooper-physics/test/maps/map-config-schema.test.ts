@@ -330,7 +330,7 @@ describe("Shipped map configs", () => {
     expect(classifier.temperature.tropicalThreshold).toBe(24);
   });
 
-  it("compiles Earthlike's empirical relief response with unchanged periodic climate controls", async () => {
+  it("compiles Earthlike's authored river and relief controls with unchanged periodic climate", async () => {
     const configs = await loadSwooperMapConfigRegistry();
     expect(Object.fromEntries(configs.map(({ canonicalConfig }) => [
       canonicalConfig.id,
@@ -353,6 +353,18 @@ describe("Shipped map configs", () => {
     );
     const baseline = compiled["hydrology-climate-baseline"]["climate-baseline"];
     const refine = compiled["hydrology-climate-refine"]["climate-refine"];
+    const riverNetwork = {
+      strategy: "discharge-percentiles",
+      config: {
+        minorPercentile: 0.74,
+        majorPercentile: 0.95,
+        minMinorDischarge: 0,
+        minMajorDischarge: 0,
+      },
+    };
+    expect(canonicalConfig.config["hydrology-hydrography"].knobs.riverDensity).toBe("normal");
+    expect(canonicalConfig.config["hydrology-hydrography"].projectRiverNetwork).toEqual(riverNetwork);
+    expect(compiled["hydrology-hydrography"].network.projectRiverNetwork).toEqual(riverNetwork);
     if (
       baseline.computeThermalState.strategy !== "periodic-response" ||
       baseline.computeRadiativeForcing.strategy !== "daily-solar-fourier" ||

@@ -285,7 +285,7 @@ The Standard recipe exposes bound operation envelopes directly and adds a
 small set of stage knobs for product-level posture:
 
 - `hydrology-climate-baseline` knobs: `dryness`, `temperature`, `seasonality`, `oceanCoupling`
-- `hydrology-hydrography` knobs: `riverDensity` (physical river-network classification density)
+- `hydrology-hydrography` knobs: `riverDensity` (river channel-class selection density)
 - `hydrology-climate-refine` knobs: `cryosphere`
 
 `hydrology-hydrography.water` is a closed `certified-sill-spill` contract with
@@ -294,6 +294,14 @@ Core's closed empty surface, not a redundant projection identity. All shipped pr
 use these contracts; lake count, area and singleton quotas are not physical
 inputs. Retired solver/projection identities and their controls are rejected
 by the owning schemas, not migrated into new physical coefficients.
+
+Earthlike authors minor/major discharge percentiles of `0.74/0.95`; its
+`normal` river-density posture preserves those values. The major selector
+promotes connected upstream paths for navigable representation after physical
+water and terrain evolution have resolved. Raising it retains more ordinary
+land and minor rivers at the cost of fewer navigable corridors; it does not
+change discharge, physical routing, lake storage, climate or certified water
+accounting. Native passage remains a separate qualification.
 
 Step schemas and their bound operation contracts remain the advanced
 configuration surface. Knobs transform those admitted configs; they do not
