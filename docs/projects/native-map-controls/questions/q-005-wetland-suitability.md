@@ -3,7 +3,7 @@ id: Q-005
 title: Wetland Suitability And Admission
 recordKind: question
 disposition: open
-sourceRevision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
+sourceRevision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
 locations:
   - id: "ecology-marsh-scoring"
     label: "Marsh Scoring"
@@ -524,6 +524,26 @@ qualified consumer corrections do not settle those questions for the remaining
 factors or marsh, nor validate persistent wetness, tidal habitat or seasonality.
 Product choices about visibility or abundance remain distinct from physical
 evidence, as [Q-002][prevalence] explains.
+
+Dry shrubland exposes a related occurrence question outside wetland planning:
+positive suitability can permit sparse plants without independently establishing
+a gameplay-significant stand. The [rejected sagebrush density contrast][dryland-meaning]
+does not validate the existing cover, but it also does not justify transferring
+a wetland floor, priority rule or absence requirement to sagebrush. Physical
+support and native stand meaning remain separate questions in both cases.
+
+
+The [rainforest category witness][category-witness] shows why habitat support,
+family response and selection must remain distinct: changed local-water
+opportunity can remove compatible biome admission even when the feature score
+rises. The absence of a newly demonstrated water double debit does not
+calibrate that boundary or prove seasonal root-water sufficiency. This is a
+related interpretation question, not evidence for changing wetland priority or
+transferring its score floor to rainforest or sagebrush. The grouped dryland
+stand question remains with [Q002][dryland-meaning].
+
+[category-witness]: q-002-ecological-prevalence.md#rainforest-habitat-is-not-a-native-feature-guarantee
+[dryland-meaning]: q-002-ecological-prevalence.md#flat-desert-is-not-necessarily-bare-desert
 
 ## Original Paired Observations
 

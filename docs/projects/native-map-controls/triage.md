@@ -107,6 +107,8 @@ These are navigation pointers, not copied investigations or new dispositions.
 - [Regional thermal response and qualification](#q-006-regional-thermal-response-and-qualification)
 - [Biome transition meaning](#q-007-biome-transition-meaning)
 - [Start climate comfort](#q-008-start-climate-comfort)
+- [Annual water yield and downstream supply](#q-009-annual-water-yield-and-downstream-supply)
+- [Resource composition and allocation](#q-010-resource-composition-and-allocation)
 
 ### Hydrology / Baseline Climate / Regional Response
 
@@ -124,6 +126,20 @@ experiment remains closed and disabled; its modest result and failed variation
 floor are not promoted by the relief outcome. Physical calibration and broader
 regional/gameplay adequacy remain open.
 [Read the research question](questions/q-006-regional-thermal-response.md).
+
+### Hydrology / Annual Water Yield
+
+#### Q-009: Annual Water Yield And Downstream Supply
+
+The reviewed annual partition distinguishes available water from potential
+demand before routing. Physical acceptance of that approximation does not
+calibrate catchment yield, annual aggregation or the plant-water opportunity
+computed downstream. The complete fifteen-map comparison retains increased
+unresolved shoreline/subtile supply separately from arithmetic conservation.
+The question concerns these quantities and their physical interpretation,
+not a lake quota or recovery of a preferred feature count. Native qualification
+and source adoption are not established by the retained offline evidence.
+[Read the research question](questions/q-009-annual-water-yield.md).
 
 ### Ecology / Biomes / Classification
 
@@ -203,40 +219,45 @@ mean. Whether relative tail avoidance best serves start quality remains open,
 without a demonstrated defect, placement blocker or selected threshold repair.
 [Read the research question](questions/q-008-start-climate-comfort.md).
 
+### Placement / Resource Composition
+
+#### Q-010: Resource Composition And Allocation
+
+Legal placement and supported starts do not establish adequate composition.
+In the annual-yield comparison, the same 494 admitted map/type rows retain
+3,584 targets while positive per-type deficits rise from 392 to 551. Twelve
+other rows leave demand admission, concealing part of the deterioration in a
+headline comparison. Two bounded native witnesses also refuse intents that
+the offline adapter admits. Demand capacity, constrained allocation and native
+admission remain distinct explanations; the evidence establishes neither a
+unique allocation defect nor a better feasible plan. This is a Resources question
+within Placement, separate from rainforest prevalence and start-climate comfort.
+[Read the research question](questions/q-010-resource-composition.md).
+
 ### Benchmark Authority / Ecological Prevalence
 
 #### Q-002: Ecological Prevalence And Benchmark Authority
 
-Current policy identifies appearance counts and shares as product assumptions
-or regression guards, not calibrated physical laws. Predicate-level
-justification for population, denominator and numerical support remains open;
-the decided Desert Mountains cap removal is not reopened.
-The retained rainforest comparison distinguishes modeled habitat, terrain
-legality and earlier feature occupancy across fifteen configurations. Cooling
-amplifies scarcity but is not established as its historical origin. A previous-lapse
-river-representation intervention increases Rainforest features with climate,
-lake geometry and rainforest-biome count held, supporting a partial occupancy
-explanation rather than precipitation depletion or a new coverage target.
-The separate current-climate qualification and one matched native pair support
-adoption of major percentile 0.95 as a representation choice: more ordinary
-feature capacity, fewer navigable corridors, unchanged captured physical water
-and habitat. Native resource refusals remain visible. The synthetic profiles,
-single seasonal recapture, fifteen-case qualification and native pair retain
-distinct populations; none turns these counts into ecological calibration.
-The whole-land census separates narrow rainforest habitat from near-blanket
-sagebrush coverage of flat desert. Filling admitted slots does not establish
-sufficient abundance or diversity. The earlier cooling qualification omitted
-the existing eight-Standard ecology study. A later paired comparison supplies
-that evidence without changing its thresholds: the adopted baseline fails and
-the seasonal-thermal candidate passes, while two seeds still have only one and
-two Rainforest features. The fixed fifteen maps show habitat-to-feature recovery
-with losses reported; one Huge map remains at zero. The adopted correction's
-matched native case supports feature-application gains and 135-cell readback,
-with full-grid measured physical arrays and river classes held. One additional
-native resource refusal is explicitly accepted, not claimed preserved; wonder
-refusals and lake-classification differences persist. This is not whole-land
-adequacy, final full-grid feature identity or campaign qualification. Dryland
-occurrence remains a separate unresolved question.
+The annual-yield comparison distinguishes physically accepted water accounting
+from ecological adequacy and legal feature placement. Rainforest declines in
+both the fifteen-map full-recipe comparison and the separate registered eight;
+one witness loses legal terrain despite improved habitat support, while another
+loses category admission despite an increased score. Retaining the 0.95 river
+policy preserves ordinary land relative to 0.92 but accepts potential-route costs.
+
+A separately completed benchmark amendment passes on the same sealed eight:
+seven maps realize rainforest against a minimum of one, with no new generations
+for that re-evaluation and every other expectation unchanged. The original
+per-map FAIL remains evidence under its original predicate. Cohort non-vacuity
+is an integration smoke test, not abundance or Earth-accuracy validation.
+
+The adopted seasonal-thermal correction and earlier river choice retain their
+own qualified source and native histories. The annual-yield source's offline
+gates are complete, but do not establish its native qualification or adoption.
+Dryland stand meaning remains open. [Q-009](questions/q-009-annual-water-yield.md)
+owns water-supply calibration and access; [Q-010](questions/q-010-resource-composition.md)
+owns resource composition and allocation rather than treating either as a
+rainforest-count repair.
 [Read the research question](questions/q-002-ecological-prevalence.md).
 
 ### Benchmark Authority / Relief And Orogeny

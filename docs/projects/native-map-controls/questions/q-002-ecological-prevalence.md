@@ -3,12 +3,12 @@ id: Q-002
 title: Ecological Prevalence And Benchmark Authority
 recordKind: question
 disposition: open
-sourceRevision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
+sourceRevision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
 locations:
   - id: "benchmark-ecological-prevalence"
     label: "Ecological Prevalence Benchmarks"
     relation: "question-owner"
-    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts"
+    sourceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts"
   - id: "ecology-vegetation-planning"
     label: "Vegetation Planning"
     relation: "related-producer"
@@ -54,6 +54,13 @@ assessments:
     state: "supported"
   - claim: "The adopted cold-season thermal correction has separate matched Huge native evidence: Rainforest applications rise from 50 to 107 and savanna from 3 to 95, with measured full-grid elevation/lake arrays and all 608 river coordinates/classes held. Three windows containing 135 cells match candidate terrain/biome/features. Resources change from 231 planned/219 placed/12 refused to 236/223/13; the additional refusal is an accepted tradeoff, not preservation. This does not establish independent final full-grid feature identity, ecological adequacy or campaign quality."
     state: "supported"
+  - claim: "The annual-yield comparison preserves upstream climate forcing while full recipes alter physical water, habitat and legal placement. Physical acceptance does not validate all resulting feature counts or resource composition."
+    state: "supported"
+  - claim: "Re-evaluation of the same sealed eight f200858 maps passes the ce077dd cohort rainforest non-vacuity target, observed seven against minimum one, with no new generations. All other expectations remain exact and the original per-map FAIL is preserved."
+    state: "supported"
+  - claim: "The benchmark amendment intentionally tests whether the cohort exercises rainforest, not its abundance, distribution or Earth accuracy."
+    state: "supported"
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms the ecology predicates and their unchanged numerical bounds; no benchmark or generation was run."
@@ -110,6 +117,16 @@ verification:
     revision: 6c5c8a82e7d36c17371699104ec58b3830f0e06d
     date: '2026-10-12'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/6c5c8a82e7d36c17371699104ec58b3830f0e06d/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts#L181-L186"
+  - kind: source-inspection
+    scope: "Inspection confirms the cohort non-vacuity predicate at minimum one, with the remaining target policy held. The retained amended evaluation is separately identified; source inspection is not a fresh generation or native qualification."
+    revision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts"
+  - kind: source-inspection
+    scope: "Inspection confirms vegetation admission reads authored river classes, with observed projection recorded separately. A Rainforest loss on newly major-river terrain is not a native setter refusal."
+    revision: ce077ddf13dc8cbbed16c1071e2aac6fafddbb60
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/plan-vegetation/step.ts"
 ---
 
 # Q-002: Ecological Prevalence And Benchmark Authority
@@ -121,12 +138,12 @@ protect vegetation variety without estimating Earth's rainforest coverage; a
 floodplain count may ensure a placement path is tested without asserting how
 common floodplains should be.
 
-Two adopted changes address different bottlenecks. The
-[river-representation choice](#current-cooling-qualification-and-adoption)
-releases ordinary surface without enlarging habitat; the
-[cold-season thermal rule](#seasonal-thermal-recovery-and-its-limits) changes
-habitat admission without adding water or changing river classes. Neither
-establishes a calibrated target for whole-world vegetation.
+Water supply, habitat admission and game representation answer different
+questions. An annual water-yield model changes how precipitation feeds routed
+water. The adopted cold-season thermal rule changes tropical admission; river
+classification decides which channels replace ordinary land. Their visible
+feature counts can move in different directions, so one preferred count cannot
+stand in for all three meanings.
 
 The [study policy][study-policy] explicitly classifies appearance counts and
 shares as product assumptions or regression guards, not physical laws or
@@ -142,6 +159,111 @@ not establish that enough habitat exists, and extensive desert classification
 does not imply extensive bare desert surface. The open
 [mangrove occurrence question][occurrence] concerns which feature occupies a
 qualifying site, not how to meet a rainforest quota.
+
+## Annual Water Yield And Its Landscape Consequences
+
+The annual-yield candidate has physical acceptance for its approximate annual
+water partition, not source adoption or native qualification. Fifteen complete
+headless recipes, ten Huge and five Standard, hold upstream climate forcing
+while allowing incision, sealing and fresh final routing to respond. The
+result is not merely the earlier fixed-ground sensitivity test. It includes
+both lost and newly wet ground; exposed land changes from 32,561 to 32,827 cells
+within the same 35,386-cell finite domain.
+
+Reduced aggregate potential dry-ground yield accompanies fewer lake cells
+overall, lower rainforest feature count, more sagebrush and
+increased unresolved shoreline/subtile supply. That unresolved allocation is
+not arithmetic conservation error. A physically accepted upstream mechanism
+does not establish that these ecological consequences are desirable, or that
+one population's native feature count measures Earthlike habitat abundance.
+
+[Annual water yield and downstream supply][annual-supply] owns the remaining
+hydrological calibration and water-access question. [Resource composition and
+allocation][resource-composition] owns the accompanying fixed-obligation
+resource deterioration. Neither is a request to recover rainforest by restoring
+excess upstream yield or changing a resource writer.
+
+### Rainforest Habitat Is Not A Native Feature Guarantee
+
+The registered eight Standard maps are a separate population from the fifteen
+above. Their modeled exposed rainforest habitat contracts from 683 to 594
+cells; final headless Rainforest features fall from 134 to 86. Seed 1 loses its
+only feature, while the other seven retain positive counts but also lose
+features. The original unconditional per-map presence expectation therefore
+remains **FAIL** under its original predicate.
+
+The immediate reason on seed 1 is not drought. Cell 2041 retains rainforest
+habitat, receives greater modeled local-water opportunity and increases its
+rainforest score from 0.597014 to 0.634623. It becomes navigable-river terrain,
+which cannot receive this native feature. The planner produces no Rainforest
+intent there. This is a loss of legal placement, not a native setter refusal,
+an observed lost biological stand or a failed seasonal thermal gate.
+
+A different witness exposes category meaning. On seed 2, cell 2411, local
+opportunity falls from 21.290890 to 19.956728. The modeled plant-moisture index
+crosses 228.25 to 226.915833, changing humid to subhumid and losing rainforest
+category. Yet the feature score rises from 0.339369 to 0.402377 with changed
+soil and fertility. A higher score cannot override incompatible habitat.
+This boundary is a calibration question, not proof that a biological stand
+should vanish after such a modest index change.
+
+Across the eight, 31 still-exposed category losses have less local-water
+opportunity under unchanged atmospheric and thermal forcing. Their changes
+are consistent with the incumbent ecology policy; they do not independently
+validate its absolute moisture categories or repeated stress attenuation.
+The review finds no newly demonstrated demand double debit or thermal
+regression. Annual plant-water opportunity still does not establish seasonal
+root-water access. The [related occurrence question][occurrence-meaning]
+separates these meanings from a shared score floor.
+
+### A Cohort Smoke Test Is Not Abundance Validation
+
+The separately completed benchmark amendment selects **cohort non-vacuity** in place of
+unconditional rainforest presence on every map: the same eight scenarios must
+exercise at least one realized Rainforest feature somewhere in the cohort.
+This is an integration smoke test, not a requirement fitted to seven of eight
+maps, a vegetation quota or an Earth-accuracy target.
+
+Re-evaluation of the same retained eight maps passes the amended target:
+seven maps contain realized Rainforest, against a requirement of at least one.
+The re-evaluation generates no new maps and preserves every other expectation
+exactly. The earlier FAIL remains a fact about the earlier expectation; a new
+predicate does not turn it into a historical pass.
+
+One rainforest tile across eight maps could satisfy non-vacuity; eight isolated
+tiles could satisfy the old per-map test. Neither establishes adequate extent,
+distribution or ecological abundance. Real habitat/admission tests have their
+own role: positive opportunity can be selected and legitimate exclusions can
+be respected without forcing a feature into every random world.
+
+### River Policy Still Trades Land For Potential Routes
+
+The physical-state and river-policy comparison keeps those choices distinct:
+
+| Physical State | Major Percentile 0.92: NAV Cells | Major Percentile 0.95: NAV Cells |
+| --- | ---: | ---: |
+| Seasonal baseline runoff | 3,577 | 2,318 |
+| Corrected full-chain annual yield | 3,430 | 2,368 |
+
+Each policy pair reclassifies the same retained physical state; it is not a
+second full-world generation. Minor percentile 0.74 and zero absolute floors
+are held. A percentile depends on the sampled distribution, whereas a floor
+sets an absolute modeled threshold. The positive discharge samples remain
+above those floors, so rank, endpoint and routing changes explain this result,
+not an absolute-floor crossing.
+
+Retaining 0.95 preserves 1,062 ordinary-land cells relative to 0.92 on corrected
+physics: 756 underlying flats and 306 hills. Those cells still carry minor
+rivers. The choice accepts fewer represented principal paths and wet
+connectors; one demoted path spans seventeen cells, so its route cost is not
+universally negligible. Actual vessel utility is unmeasured. The decision
+retains a land-occupation preference, not a physical constant or uniquely
+optimal river density. The .92 screen does not establish its downstream
+feature, resource or start outcome.
+
+[occurrence-meaning]: q-005-wetland-suitability.md#habitat-meaning-remains-open
+[annual-supply]: q-009-annual-water-yield.md
+[resource-composition]: q-010-resource-composition.md
 
 ## Seasonal-Thermal Recovery And Its Limits
 
@@ -275,29 +397,78 @@ one gate would turn every excluded humid cell into rainforest.
 
 ### Flat Desert Is Not Necessarily Bare Desert
 
-In the annual-gate baseline, 4,314 flat desert cells divide into 4,071 sagebrush,
-153 feature-bare, 89 minor desert floodplain and one oasis. Sagebrush occupies
-94.367% of flat desert. In the first Huge case, 332 flat desert cells contain
-324 sagebrush, four bare and four minor floodplain. Bare surface is scarce even where the
-desert biome itself is extensive.
+A native DESERT label compresses several physical regimes into one game
+category. It is not a measured Earth aridity class. Likewise, annual modeled
+water supply below potential demand does not independently establish an
+absence of drought-adapted plants. Sparse shrubland remains a plausible
+interpretation: a feature on every large tile need not mean continuous shrub
+canopy. Its movement and yield effects nevertheless make the distinction
+between some plants and a gameplay-significant stand consequential.
 
-The remaining bare cells are not a representative warm-desert population:
-127 belong to the model's cold thermal category and 26 to its temperate category;
-their maximum captured annual temperature is 7.043 degrees C. These categories
-are model outputs, not validated Earth climate classes. Feature-bare does not
-mean resource-free: only 132 of the 153 also lack a resource. Neither the
-feature names nor these headless counts establish the live map's appearance.
+The earlier annual-gate census found 4,314 flat desert cells: 4,071 sagebrush,
+153 feature-bare, 89 minor desert floodplain and one oasis. Sagebrush occupied
+94.367% of that population. In the first Huge case, 332 flat desert cells
+contained 324 sagebrush, four bare and four minor floodplain. Bare surface was
+scarce even where the native desert biome was extensive.
 
-The unresolved outcomes therefore have different mechanisms: rainforest habitat
-admission is distinct from the near-blanket feature coverage of flat desert.
-The [adopted river choice](#current-cooling-qualification-and-adoption) is a
-partial surface-capacity improvement, not resolution of either question.
-Earth observations can inform sensible distributions across a varied cohort
-without requiring each generated map to reproduce Earth's proportions. This
-census identifies contractions; it selects neither a target count nor a repair.
-The thermal result does not supply a new dryland census or resolve the
-occurrence/support question. A native DESERT identity is not itself a physical
-aridity class, and positive suitability is not calibrated full-tile occurrence.
+The 153 feature-bare cells were not a representative warm-desert population:
+127 belonged to the model's cold thermal category and 26 to its temperate
+category; their maximum annual temperature was 7.043 degrees C. These are
+model categories, not validated Earth climate classes. Feature-bare does not
+mean resource-free: only 132 of the 153 also lacked a resource. Neither these
+headless counts nor the feature names establish the live map's appearance.
+
+A separate planner replay on fifteen retained seasonal captures tested whether
+a vegetation-density cutoff of 0.10 would distinguish unsupported dryland
+occurrence. The captured environment, suitability scores and other-family
+intents stayed fixed. The gate removed 837 of 4,071 sagebrush intents, but only
+54 of 764 in the defined warm supply-deficit receiver. Those 54 are part of the
+837 removals, not an additional population.
+
+Here the warm receiver means cells in the warmer, lower-precipitation-to-demand
+part of the retained cohort whose total modeled annual supply remains below
+demand, even with local water opportunity included. Its warm and low-ratio
+bounds are sample-relative, not Earth desert thresholds. This receiver uses
+the refined ecological water budget; local opportunity is not proof of water
+delivered to roots.
+
+Removed sites had a median annual temperature of 7.19 degrees C. The gate also
+removed 52 cool stands where local opportunity lifted modeled annual supply
+from below demand to at least demand. These losses show why low density cannot
+be read as an independent water-limited stand boundary: the density proxy also
+depends on thermal energy, freezing and soil. The gate was rejected as a
+sufficient physical warm-dryland repair. That rejection establishes neither
+that all retained shrubland is appropriate nor that every removed stand was
+unsupported.
+
+The open distinction is between conditions permitting plants and conditions
+warranting the native stand representation. A calibrated physical occurrence
+boundary has not been established, and an empirical gameplay stand-significance
+policy has not been selected. The [related wetland question][wetland-meaning]
+separates habitat support, family response and admission policy without assuming
+that one family's floor applies to another.
+
+Rainforest admission, dryland occurrence and native category meaning therefore
+remain different questions. The [adopted river choice][river-choice] supplies
+some additional terrestrial capacity, and the seasonal thermal correction
+changes biome admission; neither result independently validates dryland cover.
+The earlier fixed-ground annual-runoff contrast addressed the water supplied
+to basins, not a vegetation-density rule. Its basin response did not establish
+full-pipeline ecological improvement.
+Earth observations can inform distributions across a varied cohort without
+requiring every map to reproduce Earth's proportions. These observations select
+neither a bare-ground quota nor a desired feature count.
+
+The full-chain annual-yield comparison increases headless Sagebrush from
+4,071 to 4,958. It therefore does not resolve the distinction between native
+DESERT, sparse shrub support and a gameplay-significant stand. The earlier
+0.10 gate remains evidence that this cutoff was not a sufficient physical
+warm-dryland repair, not support for every incumbent or newly admitted stand.
+Cold-category meaning and stand significance remain open independently of
+the water-yield mechanism.
+
+[wetland-meaning]: q-005-wetland-suitability.md#habitat-meaning-remains-open
+[river-choice]: #current-cooling-qualification-and-adoption
 
 ## Evidence That Would Settle an Individual Bound
 
@@ -352,7 +523,7 @@ empirical Earth average.
 
 ### Vegetation Across Eight Standard Maps
 
-The [ecology cohort][ecology-protocol] uses Standard (84 x 54, 8 players), seeds
+The retained pre-amendment [ecology cohort][ecology-protocol] uses Standard (84 x 54, 8 players), seeds
 `1018`, `1`, `2`, `3`, `42`, `99`, `1234` and `7777`. Every map requires
 vegetation, at least four vegetation families, and vegetation on 8-55% of land.
 Rainforest is limited to 70% of vegetation and 35% of land. Forest, rainforest
@@ -370,7 +541,10 @@ qualification-coverage gap, not a reported failed ecology run. The separate
 fifteen-case census is not a substitute result for this different cohort.
 
 The [separate seasonal-thermal result](#the-separate-eight-map-ecology-result)
-compares this exact cohort without changing its requirements.
+compares this exact cohort without changing its requirements. The later
+[annual-yield amendment](#a-cohort-smoke-test-is-not-abundance-validation)
+changes only the rainforest-presence predicate to cohort non-vacuity.
+The old per-map outcomes retain their original meaning.
 
 ### Cold Reefs Across Eight Huge Maps
 
@@ -751,6 +925,49 @@ cold-season correction and its stated tradeoffs, not overall Earthlike quality.
 | Matched seasonal native comparison | `d9f0d9e4559cf88c81fac15b3c4b5a4459296c68ec61107dc562306f1db07a10` |
 | Ten-founder surface comparison | `dd974bf3d9fde0b5c33c22bf922e0a7e0c8f300d6c24cde68bd81d935be90058` |
 | Completed seasonal adoption closure | `9b5f62eba37cb96bf2b07b6837851c9000a0c4b84fd21de7158102a7aecc0a15` |
+
+
+## Annual-Yield Evidence And Qualification
+
+The fifteen full-recipe comparisons and separate registered-eight generation
+evidence use `f20085808332b5051971dd465e189e834daaa5d4`, tree
+`abc947413608a0b9c3037f7f821c85fbc68733d3`. The comparison baseline
+`acf3ba936977fa36342eb0c645a7d9bf0675e6d5` has the same tree as adopted
+seasonal source `fe85600bb814cdeb977e36f4e9b5656aa322eb57`.
+
+Combined candidate `ce077ddf13dc8cbbed16c1071e2aac6fafddbb60`, tree
+`fb3dc2521f53bbd436349faa1e97c9bd45d734bb`, incorporates the separate benchmark
+prerequisite `2444cf10fe6404bdd51e2f9691481d2dd7e16541`. Its complete tree
+difference from f200858 is four benchmark/test/documentation files, not changed
+domain, generation or configuration bodies. The retained maps were generated
+at f200858; the ce077dd evaluation does not relabel their producer.
+
+| Retained Evidence | SHA-256 |
+| --- | --- |
+| Fifteen-map generation receipt | `50ae115635376188053b4a019649454980ead397c76314769f7ceede1437b3f2` |
+| Original eight-map FAIL receipt | `4ca98cbf788a076f20755fb1b19a180ce97306816abbc73bbcd7fc38f4dcbc4c` |
+| Amended eight-map PASS receipt | `52db1136e319a0f1228227febb21f6981d7003bb834ffb979dd1a001bb150e0d` |
+| Resource review, version 2 | `bb66171fe7c7e9e664939c4505c10e6077f3694438a763af5cb71915e68f40d4` |
+| NAV policy projection comparison | `7a7ee598a5fd0ea41f8d499b705f10eecf8e70eff5e108caab9a4175266ddef3` |
+
+The amended evaluation observes seven positive members against a minimum of
+one; all other cohort expectations and all eight sample-target records remain
+exact. Its zero new recipe executions are distinct from the subsequent R1
+repeat of one existing Huge witness, seed 378148420.
+
+Final offline qualification at ce077dd passes 1,404 definition tests with zero
+failures. All 25 owning-graph task records succeed, including cached dependency
+tasks; the definition-test task is uncached. The one R1 repeat matches the
+complete retained capture except for `execution.definitionGenerationDurationMs`.
+This is equality of captured contents with the stated exclusion, not identical
+compressed bytes or a new cohort.
+
+The R1 receipt SHA-256 is
+`e11aafbfa44d4632e807e58fd26f1d0e949cc4f979ab2174805d0c636565101b`.
+These are retained owner results, not new editorial executions. They close
+the named offline gates, not native qualification, source adoption or
+ecological adequacy. Full captures remain outside the public document; the
+digests identify their retained receipts without exposing private locations.
 
 [identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
 [ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts
