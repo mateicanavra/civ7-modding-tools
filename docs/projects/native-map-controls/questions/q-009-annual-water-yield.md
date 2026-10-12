@@ -131,6 +131,24 @@ accepted; native qualification and source adoption are not established by
 these observations. The [resource-planning question][resources] retains the
 downstream composition cost under its own owner.
 
+## Physical Water Bodies And Native Lake Categories
+
+The [retained native-category decision][lake-category] keeps Civ7's stock,
+per-map-size lake cutoff as a conservative gameplay projection, not a maximum
+physical basin size. Finite versus external water membership, water heads,
+budgets and river direction retain their physical meaning. Native `isLake`
+is a separate engine category and need not identify every finite water body.
+
+Neither a large footprint nor `isLake=false` establishes salinity, marine
+habitat or an intentionally designed inland sea. A finite body does not become
+an external reservoir because Civ7 classifies it differently. The
+[separate rendering qualification][lake-render] also distinguishes a correct
+numeric water head from visible water. The [rejected unlimited-cutoff
+comparison][unlimited-cap] changed protected marine categories, heights,
+features and resources; raising the threshold is not a neutral way to make
+the categories agree. These limits do not, by themselves, select a basin cap
+or explain why a particular physical basin is large.
+
 ## What Would Distinguish The Remaining Explanations?
 
 With annual totals held, different precipitation/demand timing can reveal
@@ -153,3 +171,6 @@ Neither outcome selects a lake quota, a river percentile or a vegetation floor.
 [ecology]: q-002-ecological-prevalence.md
 [category]: q-002-ecological-prevalence.md#rainforest-habitat-is-not-a-native-feature-guarantee
 [resources]: q-010-resource-composition.md
+[lake-category]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/docs/projects/native-map-controls/calibration-question-sheet.md#resolved-decision-preserve-heads-keep-conservative-native-taxonomy
+[lake-render]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/docs/projects/native-map-controls/calibration-question-sheet.md#reopened-render-and-category-qualification
+[unlimited-cap]: https://github.com/mateicanavra/civ7-modding-tools/blob/ce077ddf13dc8cbbed16c1071e2aac6fafddbb60/docs/projects/native-map-controls/water-height-maintenance.md#v12-outcome-and-restoration
