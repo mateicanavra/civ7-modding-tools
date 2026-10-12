@@ -145,7 +145,9 @@ retention does not turn visual-compensation provenance into Earth evidence.
 
 The source distinguishes generic low-shore support from marine intertidal
 eligibility. Whether its clipped square proximity window has the intended
-boundary behavior and physical support remains open; no placement harm is
+boundary behavior and physical support remains open. This topology concern
+is separate from mangrove occurrence and earlier wet-feature occupancy; no
+quantified contribution to bulk rainforest scarcity or placement harm is
 established. [Read the research question](questions/q-001-low-shore-neighborhood.md).
 
 #### Q-004: Point-Water Habitat Support
@@ -168,14 +170,14 @@ justify a quota or lower floor.
 
 #### Q-005: Wetland Suitability And Admission
 
-Marsh, tundra bog and mangrove retain distinct responses and their shared
-admission floor under the new moisture forcing. Across six prescribed pairs,
-rainforest rises and bog falls; marsh and mangrove responses are mixed. Most
-of the identified zero-score bog losses are consistent with the unchanged
-atmospheric-water ramp; one exact substrate/factor cause remains unobserved.
-Earlier consumer-only comparisons retain their separate resource and seating
-tradeoffs. Broad habitat proxies, seasonal/tidal meaning and shared admission
-remain open. Changed counts are not ecological validation or general improvement.
+Wetland suitability, occurrence and admission are different claims. Earlier
+mangrove intent reserves a flat tropical feature slot before otherwise admitted
+rainforest; the open question is whether warm marine-low-shore support justifies
+that priority or establishes only suitability. A coarse proxy is not inherently
+defective, and more rainforest is not proof of improvement. The retained
+six-pair moisture study and earlier consumer-only resource/seating tradeoffs
+remain separate evidence. Broad habitat proxies, seasonal/tidal meaning and
+shared admission remain open; no production repair or rainforest quota is selected.
 [Read the research question](questions/q-005-wetland-suitability.md).
 
 ### Placement / Assign Starts / Climate Comfort
@@ -199,6 +201,12 @@ Current policy identifies appearance counts and shares as product assumptions
 or regression guards, not calibrated physical laws. Predicate-level
 justification for population, denominator and numerical support remains open;
 the decided Desert Mountains cap removal is not reopened.
+The retained rainforest comparison distinguishes modeled habitat, terrain
+legality and earlier feature occupancy across fifteen configurations. Cooling
+amplifies scarcity but is not established as its historical origin. A previous-lapse
+river-representation intervention increases Rainforest features with climate,
+lake geometry and rainforest-biome count held, supporting a partial occupancy
+explanation rather than precipitation depletion or a new coverage target.
 [Read the research question](questions/q-002-ecological-prevalence.md).
 
 ### Benchmark Authority / Relief And Orogeny

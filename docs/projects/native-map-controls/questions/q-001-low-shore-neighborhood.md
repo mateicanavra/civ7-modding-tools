@@ -47,6 +47,11 @@ verification:
     revision: 2a31c96f8d61ee713075974838dfd36a0b008021
     date: '2026-10-10'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/features/steps/score-layers/step.ts"
+  - kind: source-inspection
+    scope: "Inspection at the rainforest investigation's source confirms the bounded square window remains. This is not a new boundary experiment or attribution of rainforest scarcity to shore geometry."
+    revision: fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1
+    date: '2026-10-11'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/coastal-land-mask.ts"
 ---
 
 # Q-001: Low-Shore Neighborhood Semantics
@@ -154,6 +159,15 @@ by the floodplain substrate proxy, while [Q-005](q-005-wetland-suitability.md)
 concerns individual family responses and shared admission. Their retained-case
 observations do not settle this sheet's boundary or distance questions.
 
+The [rainforest habitat-to-feature comparison][rainforest-population] makes
+earlier wet-feature occupancy visible, but does not measure how much the shore
+stencil contributes to it. The [bounded square window][retained-coastal-rule]
+is still present at that investigation's source. Its difference from wrapped-hex
+proximity remains a separate topology concern, not a quantified explanation
+for bulk rainforest scarcity. Whether suitable low shores justify
+[mangrove occurrence ahead of rainforest][occurrence] is a distinct ecological
+and admission-policy question even with geometry held fixed.
+
 [coastal-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/coastal-land-mask.ts
 [substrate-strategy]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/index.ts
 [substrate-config]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/strategies/hydromorphic/config.ts
@@ -162,3 +176,6 @@ observations do not settle this sheet's boundary or distance questions.
 [biome-step]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/stages/ecology/biomes/steps/biomes/step.ts
 [local-water-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-land-water-budget/rules/local-surface-water-opportunity.ts
 [original-question]: https://github.com/mateicanavra/civ7-modding-tools/blob/92e1fff097e67f4bfedd3e2b3f6084d7642f04ef/docs/projects/native-map-controls/questions/q-001-low-shore-neighborhood.md
+[retained-coastal-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/compute-feature-substrate/rules/coastal-land-mask.ts
+[rainforest-population]: q-002-ecological-prevalence.md#rainforest-habitat-and-feature-occupancy
+[occurrence]: q-005-wetland-suitability.md#when-suitability-reserves-the-only-feature-slot
