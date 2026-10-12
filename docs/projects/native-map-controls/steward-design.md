@@ -27,8 +27,8 @@ separate from physical validity.
 
 | Agent | Decision it reviews | Excluded decision |
 | --- | --- | --- |
-| `earth-relief-climate-steward` | Whether relief, terrain classes, and climate responses describe a coherent landscape with the intended gameplay affordances | Basin outlet/storage algorithm or native API qualification |
-| `earth-basin-drainage-steward` | Whether depression treatment, storage, outlets, and river routing have a defensible physical meaning | Whole-map relief styling, climate calibration, or native API qualification |
+| `earth-relief-climate-steward` | Whether relief, thermal or moisture changes describe a coherent climate/landscape/habitat relationship, including without a relief edit | Basin outlet/storage algorithm or native API qualification |
+| `earth-basin-drainage-steward` | Whether depression treatment, storage, outlets, river routing and changed upstream forcing have defensible water/terrain consequences | Whole-map relief styling, climate-law calibration, or native API qualification |
 
 Use one role when one decision is in question. Use both for a proposal that
 changes basin treatment and therefore relief or climate, with the same sealed
@@ -50,10 +50,11 @@ Launch without conversation-history inheritance; restate necessary intent and
 link the controlling accepted decision. If the runtime exposes an empty-history
 spawn option, use it rather than copying a long parent session.
 
-Both agents return the same bounded contract: verdict, up to three findings,
-one strongest counter-hypothesis and discriminator, one simplification, and the
-smallest next proof. Each material finding names physical meaning, affected
-owner, evidence class, and citations. `INSUFFICIENT` identifies exactly which
+Both agents return the same bounded contract: verdict, a compact quantity chain,
+up to three findings, one strongest counter-hypothesis and discriminator, one
+simplification, and either sufficient existing proof or the smallest missing
+comparison. Each material finding names physical
+meaning, affected owner, evidence class, and citations. `INSUFFICIENT` identifies exactly which
 missing fact could change the decision, while preserving supported conclusions.
 It does not open an unbounded research loop or ask permission to read sources.
 
@@ -63,6 +64,100 @@ ends retrieval early. No edits, generated artifacts, builds/tests, Git changes,
 UI actions, game/controller calls, or nested agents belong to these reviewers.
 Public research is read-only; material scientific claims require primary
 sources with the claimed regime and resolution, not analogy alone.
+
+## Coupling Review Follow-Through
+
+The October 7 follow-through addresses the user's explicit concern:
+
+> these are exxaclty the kinds of critical details that matter. good find. this is the kind of thing to look out for. you can use prompt design to design a steward for this.
+
+> when you read skills, read them deeply and combine with other relevant skills from cognition or the local repo, by the way.
+
+> we may even already have a steward for this, but the older thread you're collaborating with stopped leveraging them in full as they should have... perhaps thats what led to drift as well
+
+The reviewed prompts already cover the relevant physical domains. Their gaps
+were relief-led routing that could miss a thermal-only change, a basin trigger
+that did not explicitly include changed upstream forcing, and no required
+quantity/vintage/consumer trace in the return. These findings justify repairing
+the existing interfaces, not a third cross-domain steward. They do not prove
+historical nonuse: that would require invocation evidence, not missing prose.
+
+Each review now follows the few quantities capable of changing its decision:
+producer -> meaning/units/support -> artifact or iteration vintage -> actual
+consumer -> consequential outcome. Source-confirmed links are not measured
+effects. Similarly named fields and missing feedback are explicit; an absent
+relationship can be an intentional approximation rather than an instruction to
+add another physical process. The parent owns cross-role reconciliation and
+adoption, not either reviewer.
+
+The motivating source distinction is concrete: the
+[network step](../../../plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/hydrography/steps/network/step.ts)
+uses baseline rainfall and potential demand in its wet-footprint basin solve,
+whose discharge participates in incision and the final network solve. The
+[later refinement](../../../plugins/mod/map/swooper-physics/src/recipes/standard/stages/hydrology/climate/refine/steps/climate-refine/step.ts)
+computes another demand/water-budget product for ecological consumers. A later
+PET readback cannot establish what forced the earlier lakes and rivers. The
+steward must derive current paths rather than memorize this example forever.
+
+The reusable invocation point lives in the MapGen skill's
+[physical coupling review](../../../.agents/skills/civ7-mapgen-workstream/references/orchestration.md#physical-coupling-review),
+with the trace in its existing
+[expectation ledger](../../../.agents/skills/civ7-mapgen-workstream/assets/earthlike-expectation-ledger.md#decision-relevant-quantity-chains).
+Apply it before physical-model acceptance or another campaign after an
+inconclusive result. Re-review material changes to meaning, input vintage,
+geometry or consumer wiring, not every file or unchanged numerical optimization.
+The return is capped at 750 words; no execution authority or extra research
+lane is added.
+
+The combined design lenses are Prompt Design's bounded/stateless handoff,
+System Design's consequential relationships and feedback, Team Design's single
+parent decision owner, and the local MapGen ownership/proof rules. The process
+risk is a reinforcing loop of unresolved proxy errors producing more upstream
+work before product feedback. This is an engineering interpretation of the
+record, not proof of the team's motives. The balancing intervention is a
+source-grounded consumer trace and an early discriminating outcome check.
+Review overhead is itself a risk: the trigger is one consequential decision,
+not a standing committee, universal audit or new acceptance framework.
+
+### Updated Fit And Verification
+
+Verified October 7: local CLI `0.160.1` and configured default
+`gpt-6.1-sol` / `xhigh`; these are environment facts, not proof of any active
+session's model. Existing agent model/effort inheritance is unchanged. The
+[official model guide](https://developers.openai.com/api/docs/guides/latest-model)
+supports Sol for complex work but labels detailed behavioral advice as
+Astra-derived and requiring evaluation on the chosen workload. The
+[subagent documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents)
+confirms inheritance when model/effort are omitted and warns that live parent
+permissions can override agent defaults. No model-specific behavioral certainty
+or tool-isolation claim is inferred from config.
+
+The prompt therefore retains bounded retrieval, explicit read-only scope,
+supported analysis without unnecessary questions, and a concise evidence
+return. Model settings remain in runtime configuration, not prompt prose.
+Recheck fit on a model/config change. TOML validation and prompt review are
+separate from representative behavioral invocation and native discovery.
+
+Five independent prompt dimensions were reviewed, then rechecked after one
+material correction: a supported decision now permits no additional proof,
+rather than manufacturing a next experiment to satisfy the return contract.
+The other accepted edit removed redundant read-scope reassurance.
+
+Two fresh source-based invocations followed the amended TOML instructions as
+explicit launch contracts. The basin challenge rejected final PET, dry runoff
+and tile counts as sufficient water-safety evidence, tracing baseline demand
+through basin solving, discharge, incision and final recomputation. The
+downstream-only control kept an isolated effective-moisture change with its
+ecological consumers, found no backward network/ocean dependency, and required
+no additional proof for that stipulated scope decision. These are positive and
+negative prompt-behavior checks, not measured candidate effects or proof that
+a running session automatically reloaded the named role definitions.
+
+Validation also parsed all thirteen unique agent TOMLs, checked required keys
+and retained read-only/no-model-override settings, resolved this document's
+twenty-one local links, and passed `git diff --check` and the root
+`bun run check` graph. No game deployment or physical-model qualification is
+claimed by this authoring change.
 
 ## Durable Authority
 
