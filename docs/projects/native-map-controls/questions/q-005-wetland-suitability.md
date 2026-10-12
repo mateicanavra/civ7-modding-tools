@@ -75,6 +75,8 @@ assessments:
     state: "supported"
   - claim: "The separate seasonal-thermal outcome audit reports mangrove/forest exchanges and sixty former forest cells becoming featureless across twenty-three headless maps while physical inputs and independent scores hold. Biome compatibility changes which families may occupy a site; unsupported replacement families expose an occurrence question, not physical drying or authority to lower a floor."
     state: "supported"
+  - claim: "One matched Huge native thermal comparison supports changed family application with measured physical water and river classes held. Application totals and bounded readback do not independently verify every transition across the twenty-three headless maps, calibrate occurrence or authorize a floor or priority change."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms separate family operations and actual atmospheric-water, plant-water and climate-field bindings; it does not calibrate their physical responses."
@@ -381,9 +383,14 @@ Together these outcomes sharpen one existing challenge: do biome compatibility,
 family responses and earlier-slot priority provide adequate occurrence
 discrimination? They do not establish sixty independent defects, a mandatory
 fallback feature, a lower floor or reversed mangrove priority. The source/headless
-result is accepted after independent audit, but native behavior and whole-land
-quality remain unestablished. The earlier thirty-capture occurrence decision
-retains its own scope rather than becoming proof for this different comparison.
+result and its [bounded native realization][seasonal-native] are accepted.
+The matched Huge case supports changed family application while measured
+physical water and river classes hold. Its application totals and bounded
+readback do not independently verify every transition across the twenty-three
+headless maps or calibrate coastal occurrence. Whole-land quality and the grouped
+replacement-family question remain open. The earlier thirty-capture occurrence
+decision retains its own scope rather than becoming proof for this different
+comparison.
 
 ## Changed Forcing, Retained Responses
 
@@ -616,6 +623,7 @@ not a new reduction, native observation or general feature-policy qualification.
 [prevalence]: q-002-ecological-prevalence.md
 [rainforest-population]: q-002-ecological-prevalence.md#rainforest-habitat-and-feature-occupancy
 [seasonal-outcomes]: q-002-ecological-prevalence.md#seasonal-thermal-recovery-and-its-limits
+[seasonal-native]: q-002-ecological-prevalence.md#cold-season-admission-in-one-native-world
 [seasonal-evidence]: q-002-ecological-prevalence.md#whole-land-census-and-qualification-coverage
 [rainforest-evidence]: q-002-ecological-prevalence.md#rainforest-evidence-scope-and-provenance
 [retained-mangrove]: https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/wet-score-mangrove/strategies/warm-intertidal/index.ts

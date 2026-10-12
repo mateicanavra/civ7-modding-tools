@@ -52,6 +52,8 @@ assessments:
     state: "supported"
   - claim: "The seasonal-thermal candidate's headless comparison raises rainforest habitat from 1,233 to 2,174 and final Rainforest from 248 to 553 across the same fifteen exposed-land populations, with 974 habitat additions/33 losses and 309 feature additions/four losses. Annual physical, climate, water, density and fifteen biome-independent score fields hold. The unchanged eight-Standard ecology study passes, but sparse and zero-rainforest cases remain; this is not native qualification or whole-land adequacy."
     state: "supported"
+  - claim: "The adopted cold-season thermal correction has separate matched Huge native evidence: Rainforest applications rise from 50 to 107 and savanna from 3 to 95, with measured full-grid elevation/lake arrays and all 608 river coordinates/classes held. Three windows containing 135 cells match candidate terrain/biome/features. Resources change from 231 planned/219 placed/12 refused to 236/223/13; the additional refusal is an accepted tradeoff, not preservation. This does not establish independent final full-grid feature identity, ecological adequacy or campaign quality."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Source inspection confirms the ecology predicates and their unchanged numerical bounds; no benchmark or generation was run."
@@ -133,6 +135,13 @@ not establish that enough habitat exists, and extensive desert classification
 does not imply extensive bare desert surface. The open
 [mangrove occurrence question][occurrence] concerns which feature occupies a
 qualifying site, not how to meet a rainforest quota.
+
+Two adopted changes address different bottlenecks. The
+[river-representation choice](#current-cooling-qualification-and-adoption)
+releases ordinary surface without enlarging habitat; the
+[cold-season thermal rule](#seasonal-thermal-recovery-and-its-limits) changes
+habitat admission without adding water or changing river classes. Neither
+establishes a calibrated target for whole-world vegetation.
 
 ## The Benchmarks Judge Outcomes, Not Ecological Forcing
 
@@ -229,7 +238,7 @@ law.
 **Complete placement within admitted habitat is not the same as adequate
 whole-land abundance or diversity.** The census re-examines the same fifteen
 adopted-equivalent captures: ten Huge and five Standard maps, stronger cooling
-and major-river percentile 0.95, with the adopted annual tropical gate. This
+and major-river percentile 0.95, with the pre-change annual tropical gate. This
 **annual-gate baseline** predates the seasonal-thermal candidate below. The census
 adds no map generation. Its denominator is
 all 32,561 exposed cells, including navigable terrain but excluding finite lakes
@@ -277,7 +286,51 @@ Fourteen of fifteen maps gain final rainforest. Huge seed `1419989910` remains
 at zero, with rainforest habitat changing from 32 to 30 cells. This is useful
 end-to-end recovery, not universal recovery or adequate whole-world diversity.
 The source/headless correction is accepted after independent outcome audit;
-deployment and native qualification are not established by this evidence.
+its separate native comparison below supports bounded realization, not a new
+fifteen-map native census or closure of the remaining ecological questions.
+
+##### Cold-Season Admission In One Native World
+
+The adopted thermal rule reaches Civ7 in one matched Huge case: seed
+`378148420`, 106 x 66 cells and ten major players. Both arms use the already
+adopted major-river percentile of 0.95. This comparison therefore tests thermal
+admission, not another reduction in navigable-river coverage.
+
+| Ordinary-Feature Applications | Annual-Gate Baseline | Cold-Season Rule |
+| --- | ---: | ---: |
+| Rainforest | 50 | 107 |
+| Savanna woodland | 3 | 95 |
+| Forest | 357 | 227 |
+| Mangrove | 22 | 34 |
+
+Total ordinary-feature applications rise from 1,144 to 1,175 with no recorded
+legality refusals; every family aggregate matches the qualified headless case.
+**Applications and final native readback are different evidence.** These counts
+are recorded after feature setter calls, not independently read from every final
+tile. Three native windows provide that second kind of observation for 135
+cells: all have available facts and match candidate terrain, biome and feature.
+Their physical facts hold against the matched baseline. The tropical window
+includes one forest-to-empty site as well as gains; the basin and old-start
+windows hold.
+
+**Successful vegetation application does not mean refusal-free placement.**
+Native resources change from 231 planned / 219 placed / 12 refused to
+236 / 223 / 13. The additional refusal is an explicitly accepted downstream
+tradeoff, not a preserved resource result or a waived success. Wonders remain
+7 planned / 4 placed / 3 refused. These counts establish neither per-start
+resource adequacy nor complete realization of every planned object.
+
+Measured elevation and accepted/observed lake arrays hold between arms across
+all 6,996 cells. All 608 river coordinates and classes hold, comprising 445 minor
+and 163 navigable cells. All 158 accepted lake cells remain water, but the same
+40 native lake-classification differences persist. Physical preservation is
+not perfect agreement between lake categories or proof of vessel passage.
+
+All ten current founder sites are native dry, non-lake and non-navigable terrain
+at turn one; two players' starting positions differ between maps and the local player remains at
+`(38,16)`. This is a start-surface observation, not a founding, movement, visual
+or campaign test. The sparse cases above, dryland occurrence below and
+[family-competition question][seasonal-occurrence] remain open.
 
 #### Flat Desert Is Not Necessarily Bare Desert
 
@@ -640,20 +693,46 @@ fact rather than being retroactively described as a completed ecology run.
 
 Candidate source is `acf3ba936977fa36342eb0c645a7d9bf0675e6d5`, tree
 `ba1e61f5f1a557dd884001041a75b95b5295a9a4`. Its source/headless qualification and
-independent sealed-output audit support the bounded comparisons above, not a
-release, native observation or calibrated abundance claim. The five new-baseline
+independent sealed-output audit support the cohort comparisons above. Native
+realization and completed adoption have separate evidence below; neither turns
+these cohorts into calibrated abundance claims. The five new-baseline
 build-wrapper import-order differences are disclosed in retained custody;
 universal runtime byte equivalence is not claimed. This sheet inspects retained
 results without repeating generation or reduction.
 
 | Seasonal-Thermal Outcome Evidence | SHA-256 |
 | --- | --- |
-| Outcome review including independent-audit findings | `f2536c09715b7adbf868d62ff350b1f73bcceb594afeda39bd67e656aba8fb2f` |
+| Source/headless outcome-review version | `f2536c09715b7adbf868d62ff350b1f73bcceb594afeda39bd67e656aba8fb2f` |
 | Candidate execution receipt | `27ff21106d6af07459c4d0fbfb87be4fe2f64c97d960ff52e98dff67b3fe812f` |
 | Candidate outcome summary | `989b52d45b5c3fc10cb78f79b60116d6c6f7061a3d1cfd55b91d928c6c62554b` |
 | Unchanged eight-case ecology comparison | `39daabef82e1be6fce0b22bcd2055bb690397b0de96a3113819d856bb6645478` |
 | Exact-adopted eight-case baseline receipt | `fc9caf97f3353f4c5129c94387300fb95bf1f7f42cc2a78a4b7994cd42d0e701` |
 | New-baseline runtime inventory qualifications | `b11ed0c1e00f8733300907b445803bea0c9e824a0592b40f76c0644670b18b8e` |
+
+### Seasonal Native Realization And Adoption
+
+The adopted merge `fe85600bb814cdeb977e36f4e9b5656aa322eb57` has the same
+tested tree `ba1e61f5f1a557dd884001041a75b95b5295a9a4` as candidate `acf3`.
+The closure receipt verifies clean adopted source and all eight installed and
+built files against the qualified artifact. It establishes completed adoption,
+distinct from the retained pre-merge authorization. The expanded outcome review
+records the adopted result; the earlier source/headless version remains separate.
+
+The native result adds one completed generation against the retained matched
+0.95 baseline. An independent reviewer decoded both raw logs and checked their
+evidence series, installed bytes, complete physical arrays, river classes and
+bounded observations. Founder surface facts have separate readback. This sheet
+curates those finished results without repeating native actions or claiming
+independent final full-grid feature identity. Acceptance is bounded to the
+cold-season correction and its stated tradeoffs, not overall Earthlike quality.
+
+| Retained Native Evidence | SHA-256 |
+| --- | --- |
+| Expanded outcome review including native findings | `23e2b9e6e454680e57b87a6cda6d808b0cdad9b9711a0a14cc2d6e44e53427a8` |
+| Bounded adoption decision | `7afa9fbacd30f7b0fb047fbe5c7a24a35cf381c4449b81194cd3c7e2883b3d5f` |
+| Matched seasonal native comparison | `d9f0d9e4559cf88c81fac15b3c4b5a4459296c68ec61107dc562306f1db07a10` |
+| Ten-founder surface comparison | `dd974bf3d9fde0b5c33c22bf922e0a7e0c8f300d6c24cde68bd81d935be90058` |
+| Completed seasonal adoption closure | `9b5f62eba37cb96bf2b07b6837851c9000a0c4b84fd21de7158102a7aecc0a15` |
 
 [identity-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/identities.ts
 [ecology-target]: https://github.com/mateicanavra/civ7-modding-tools/blob/2a31c96f8d61ee713075974838dfd36a0b008021/plugins/mod/map/swooper-physics/src/recipes/standard/metrics/targets/ecology.ts

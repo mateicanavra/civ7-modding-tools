@@ -41,6 +41,8 @@ assessments:
     state: "supported"
   - claim: "A separate implemented thermal candidate replaces the annual tropical gate and atmospheric wetness-to-temperature adjustment with Hydrology's coldest circular one-twelfth-cycle mean and a provisional 18 C criterion. Fixed-fifteen and existing-eight headless comparisons demonstrate habitat-to-feature recovery with protected annual fields and scores held. Source/headless acceptance does not establish native qualification or a full seasonal-water habitat model."
     state: "supported"
+  - claim: "The cold-season correction is adopted at fe85600 with the same qualified tree as acf3 and separate bounded native realization in one matched Huge case. This accepts the thermal admission distinction, not a selected permanent season, a full seasonal-water habitat model, calibrated whole-land ecology or campaign quality."
+    state: "supported"
 verification:
   - kind: source-inspection
     scope: "Inspection confirms the frozen recipe's real classifyBiomes binding; the owning step and classifier operation are unchanged through ae8. This is navigation/source identity, not physical qualification."
@@ -77,6 +79,16 @@ verification:
     revision: fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1
     date: '2026-10-11'
     evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fa3dd579f2fc4b3fd8f2b22b7942eac8c26415f1/plugins/mod/map/swooper-physics/src/domain/ecology/modules/features/ops/vegetation-score-rainforest/rules/score.ts"
+  - kind: source-inspection
+    scope: "The adopted temperature rule retains annual polar/cold gates and uses the coldest-month-like mean for tropical admission. This is source inspection, not a rerun of headless or native qualification."
+    revision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/temperature.ts"
+  - kind: source-inspection
+    scope: "The adopted periodic producer computes a minimum circular one-twelfth-cycle mean from its clipped baseline thermal curve alongside its annual mean. This confirms the emitted statistic, not Earth calibration or seasonal soil-water persistence."
+    revision: fe85600bb814cdeb977e36f4e9b5656aa322eb57
+    date: '2026-10-12'
+    evidenceHref: "https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-thermal-state/rules/periodic-response.ts"
 ---
 
 # Q-007: Biome Transition Meaning
@@ -86,10 +98,10 @@ A continuous climate field must eventually become discrete biome categories.
 Crossing a category boundary is expected. The retained owner meaning is an
 intentional, **uncalibrated annual temperature/atmospheric-moisture envelope**.
 Its earlier consistency findings remain valid for that baseline. A separate
-[cold-season thermal candidate](#persistent-warmth-is-a-separate-question) now
-has accepted source/headless evidence: it changes the information used for
-tropical admission, not the annual climate itself. Native qualification and
-broader habitat adequacy remain open.
+[cold-season thermal rule](#persistent-warmth-is-a-separate-question) is adopted
+with headless and bounded native evidence: it changes the information used for
+tropical admission, not the annual climate itself. Seasonal-water habitat
+meaning, broader ecological adequacy and gameplay qualification remain open.
 
 The owner is **Ecology / Biomes / Biome Classification**, after Hydrology has
 produced climate and local plant-water fields, and before features and native
@@ -104,7 +116,7 @@ needed to distinguish some forest regimes. In particular, `tropicalSeasonal`
 names an annual moisture category here, not a measured dry-season duration.
 
 The annual guarded rule and retained pair below describe their original source
-vintages. They are not the candidate's new tropical rule. The candidate outcome
+vintages. They are not the adopted cold-season rule. The later outcome
 does not retroactively change those findings or the notebook's navigation pin.
 
 ## Two Different Uses Of Moisture
@@ -302,12 +314,14 @@ generated water witness examines atmospheric shortfalls and uncertain local-wate
 persistence. Neither establishes that annual mean temperature is an adequate
 substitute for the cold part of the temperature cycle.
 
-The separate implemented thermal candidate uses a Hydrology-owned **minimum circular
-one-twelfth-cycle mean** from the existing periodic temperature curve: the
+The adopted [thermal producer][adopted-thermal-producer] supplies a
+Hydrology-owned **minimum circular one-twelfth-cycle mean** from the existing
+periodic temperature curve: the
 coldest month-like interval, not its coldest sampled instant or one chosen
 permanent season. The initial 18 degrees C criterion is informed by the
 [Koppen-Geiger tropical criterion][peel], but remains a provisional model
-choice, not a universal physiological boundary. It replaces the annual tropical
+choice, not a universal physiological boundary. The
+[adopted classifier][adopted-thermal-rule] replaces the annual tropical
 temperature gate and atmospheric wetness-to-temperature adjustment rather than
 adding another veto on top of them. Annual temperature still serves the cold
 zones and annual growth/demand meanings; annual plant-water categories remain
@@ -316,17 +330,19 @@ distinct from a full seasonal rainforest classification.
 **The lesson is to preserve the summary each decision needs, not to choose one
 season or discard annual means everywhere.** The same periodic temperature curve
 can supply an annual mean for annual processes and a cold-season constraint for
-persistent tropical warmth. This candidate uses the baseline, pre-albedo thermal
+persistent tropical warmth. This rule uses the baseline, pre-albedo thermal
 curve; newly tropical cells in the qualification have neutral annual albedo
 correction. It does not add seasonal soil storage, uptake or dry-season survival.
 
 The [fixed-map comparison][seasonal-outcomes] demonstrates formerly excluded
 humid habitat reaching final Rainforest, with annual physical, climate, water,
 vegetation-density and fifteen biome-independent score fields held. Gains,
-losses and sparse cases are reported together. The source/headless correction
-is accepted after an independent outcome audit, not merely authorized for
-implementation. That acceptance is neither deployment nor native qualification,
-and does not close the seasonal-water question or broader biome-quality question.
+losses and sparse cases are reported together. Separate
+[matched native evidence][seasonal-native] supports application-stage gains and
+bounded terrain/biome/feature readback while measured physical water and river
+classes hold. The correction is adopted on that qualified basis. Neither
+adoption nor successful application closes seasonal-water meaning, the remaining
+feature-occurrence questions or broader biome quality.
 
 ### Why This Is Not Another Score Repair
 
@@ -339,8 +355,11 @@ generic-fertility multiplier in this score; fertility influences the separate
 [density calculation][vegetation-density] through a bounded soil response.
 
 The retained fifteen-configuration comparison found no additional score-floor
-loss among free, legally eligible rainforest sites. That supports no new score
-repair, not scientific validation of the habitat category. The separate
+loss among free, legally eligible rainforest sites under its **annual-gate
+baseline**. That finding does not deny the later
+[zero-score and below-floor replacement-family sites][seasonal-occurrence]
+after thermal admission changes. Neither population alone justifies a score
+repair or validates the habitat category. The separate
 [mangrove occurrence review][mangrove-retention] likewise retains its intended
 specialized-habitat priority without validating coastal coverage. Independent
 family scores are not calibrated competing occurrence probabilities.
@@ -512,12 +531,14 @@ member to the separate fifteen-case river qualification.
 | Retained-model closure | `45e0581abe56358fb30e23a631c675012aa0ebace717dff504593fc7558e8c81` |
 
 The separate seasonal-thermal mechanism retains its predeclared definition
-below. That definition is not a result; the [later source/headless evidence][seasonal-evidence]
+below. That definition is not a result; the [source/headless evidence][seasonal-evidence]
 has its own candidate source, 23 executions, reused fifteen-case baseline and
-separately acquired eight-case baseline. Independent outcome audit and acceptance
-apply to that bounded result, not to deployment, native behavior or a full
-seasonal-water model. The water-witness closure above neither supplies nor
-invalidates that different thermal evidence.
+separately acquired eight-case baseline. The
+[native realization and adoption evidence][seasonal-adoption] has its own
+matched-case, installed-artifact and completed-source identities. Neither
+evidence class establishes a full seasonal-water model or whole-world ecological
+calibration. The water-witness closure above neither supplies nor invalidates
+that different thermal evidence.
 
 | Candidate Definition, Not Outcome | SHA-256 |
 | --- | --- |
@@ -548,6 +569,11 @@ invalidates that different thermal evidence.
 [whole-land-coverage]: q-002-ecological-prevalence.md#whole-land-habitat-and-feature-coverage
 [seasonal-outcomes]: q-002-ecological-prevalence.md#seasonal-thermal-recovery-and-its-limits
 [seasonal-evidence]: q-002-ecological-prevalence.md#whole-land-census-and-qualification-coverage
+[seasonal-native]: q-002-ecological-prevalence.md#cold-season-admission-in-one-native-world
+[seasonal-adoption]: q-002-ecological-prevalence.md#seasonal-native-realization-and-adoption
+[seasonal-occurrence]: q-005-wetland-suitability.md#biome-compatibility-changes-cover-without-changing-scores
+[adopted-thermal-rule]: https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/ecology/modules/biomes/ops/classify-biomes/rules/temperature.ts
+[adopted-thermal-producer]: https://github.com/mateicanavra/civ7-modding-tools/blob/fe85600bb814cdeb977e36f4e9b5656aa322eb57/plugins/mod/map/swooper-physics/src/domain/hydrology/modules/climate/ops/compute-thermal-state/rules/periodic-response.ts
 [peel]: https://hess.copernicus.org/articles/11/1633/2007/hess-11-1633-2007.pdf
 [fao-zones]: https://www.fao.org/4/ap861e/ap861e00.pdf
 [lugo]: https://data.fs.usda.gov/research/pubs/iitf/ja_iitf_1999_lugo002.pdf

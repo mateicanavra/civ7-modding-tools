@@ -133,7 +133,7 @@ The thermal comparison exposes an existing atmospheric-moisture adjustment
 near the tropical boundary: 21 cells enter its guard and four cross adaptive
 thresholds within it, without changing their plant-moisture/stress categories.
 The bounded owner review retains its intentional empirical habitat envelope;
-the shipped law is monotone at fixed other inputs. Cooling across a categorical
+the reviewed baseline law is monotone at fixed other inputs. Cooling across a categorical
 boundary is not a defect, and simultaneous cooling/wetting need not preserve
 a class. Ecological calibration and the case for alternatives remain open;
 retention does not turn visual-compensation provenance into Earth evidence.
@@ -146,10 +146,11 @@ atmospheric seasonal exposure, but all positive-gap rainforest cells have annual
 local-water support of unknown seasonal persistence and all free lawful slots
 already place. That atmospheric-water challenger does not establish a classifier
 change; it does not validate annual tropical thermal admission or whole-land
-diversity. The separate implemented cold-season thermal rule now has accepted
-source/headless recovery with annual physical, climate and water summaries held.
+diversity. The separate cold-season thermal rule is adopted with source/headless
+recovery and bounded matched Huge native realization, while protected annual
+physical, climate and water summaries hold.
 It replaces tropical admission, not all annual means, and is not a seasonal
-soil-water model. Native qualification and broader biome quality remain open.
+soil-water model. Broader biome quality and gameplay qualification remain open.
 [Read the research question](questions/q-007-biome-transition-meaning.md).
 
 ### Ecology / Features / Score Layers
@@ -197,6 +198,8 @@ The separate seasonal-thermal comparison changes family eligibility at unchanged
 physical inputs and scores. Mangrove/forest exchanges and sixty forest-to-empty
 sites expose grouped family admission/occurrence consequences, not physical
 drying, sixty independent defects or justification for lower floors.
+Its matched native realization supports changed family application, not
+calibrated coastal occurrence or an independent full-grid final-feature census.
 [Read the research question](questions/q-005-wetland-suitability.md).
 
 ### Placement / Assign Starts / Climate Comfort
@@ -239,9 +242,13 @@ the existing eight-Standard ecology study. A later paired comparison supplies
 that evidence without changing its thresholds: the adopted baseline fails and
 the seasonal-thermal candidate passes, while two seeds still have only one and
 two Rainforest features. The fixed fifteen maps show habitat-to-feature recovery
-with losses reported; one Huge map remains at zero. This is accepted source/headless
-evidence, not native qualification or whole-land adequacy. Dryland occurrence
-remains a separate unresolved question.
+with losses reported; one Huge map remains at zero. The adopted correction's
+matched native case supports feature-application gains and 135-cell readback,
+with full-grid measured physical arrays and river classes held. One additional
+native resource refusal is explicitly accepted, not claimed preserved; wonder
+refusals and lake-classification differences persist. This is not whole-land
+adequacy, final full-grid feature identity or campaign qualification. Dryland
+occurrence remains a separate unresolved question.
 [Read the research question](questions/q-002-ecological-prevalence.md).
 
 ### Benchmark Authority / Relief And Orogeny
